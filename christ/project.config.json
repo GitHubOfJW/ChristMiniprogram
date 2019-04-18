@@ -1,0 +1,16 @@
+{
+	"description": "在线收听赞美诗歌、圣经，传播基督福音。",
+	"setting": {
+		"urlCheck": true,
+		"es6": false,
+		"postcss": false,
+		"minified": false
+	},
+	"compileType": "miniprogram",
+	"appid": "wx92589ad7fbbc7bf7",
+	"projectname": "christ",
+	"miniprogramRoot": "dist/",
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
+	"condition": {}
+}

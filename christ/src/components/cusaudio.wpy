@@ -1,0 +1,62 @@
+<template>
+  <view class="audio">
+    <image src="../imgs/bars.svg"/> 
+    <view class="name">是你的绝情伤害了我</view>
+    <image src="../imgs/play.png"/>
+    <image src="../imgs/unsupport.png"/>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class CusAudio extends wepy.component {
+
+}
+</script>
+
+<style lang="less" scoped>
+  .audio {
+    width:650rpx;
+    height:60px;
+    // background-color: blue;
+    position: relative;
+
+    image {
+      width:20px;
+      height:20px;
+      // background-color: red;
+      transform: translateY(-50%);
+      position: relative;
+      top:50%;
+      z-index: 1;
+      animation-play-state: paused;
+    }
+
+    image:nth-of-type(2) {
+      position: absolute;
+      right:40px;
+    }
+    image:nth-of-type(3) {
+      position: absolute;
+      right:0;
+    }
+
+    .name {
+      font-size:14px;
+      display: inline-block;
+      // background-color: yellow;
+      height: 60px;
+      line-height: 60px;
+      padding-left:35px;
+      padding-right:80px;
+      width:100%;
+      position: absolute;
+      left:0;
+      top:0;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    
+  }
+</style>

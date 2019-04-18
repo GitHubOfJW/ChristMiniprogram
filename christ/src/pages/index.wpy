@@ -1,0 +1,180 @@
+<template>
+  <view class="container">
+    <cusaudio></cusaudio>
+    <!-- 免责声明相关 -->
+    <panel1 lines="top bottom">
+      <view class="header">
+      <repeat for="{{menus}}" key="index" index="index" item="menu">
+        <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
+      </repeat>
+      </view>
+    </panel1>
+
+    <!-- 祷告文 -->
+    <panel2 lines="bottom">
+      <view class="prayers">
+        <label for="祷告文">祷告词</label>
+        <label for="祷告文内容">{{prayersTxt}}</label>
+      </view>
+    </panel2>
+
+    <toast />
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import MenuItem from '@/components/menuitem'
+  import Panel from '@/components/panel' // alias example
+  import Counter from 'counter' // alias example
+  import List from '@/components/list' // aliasFields example
+  // import moduleA from 'module-a' // aliasFields ignore module example
+  import Group from '@/components/group'
+  import CusAudio from '@/components/cusaudio'
+  import Toast from 'wepy-com-toast'
+  import Mixins from '../mixins/mixins'
+
+  // console.log('moduleA ignored: ', moduleA) // => moduleA ignored: {}
+
+  @connect({
+    num (state) {
+      return state.counter.num
+    },
+    asyncNum (state) {
+      return state.counter.asyncNum
+    },
+    sumNum (state) {
+      return state.counter.num + state.counter.asyncNum
+    }
+  })
+
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '基督随身听'
+    }
+    components = {
+      menuitem: MenuItem,
+      panel1: Panel,
+      panel2: Panel,
+      cusaudio: CusAudio,
+      counter1: Counter,
+      counter2: Counter,
+      list: List,
+      group: Group,
+      toast: Toast
+    }
+
+    mixins = [Mixins]
+
+    data = {
+      timerId: null,
+      prayersTxt: '我们在天上的父,愿人都尊你的名为圣。愿你的国降临；愿你的旨意行在地上，如同行在天上。我们日用的饮食，今日赐给我们。免我们的债，如同我们免了人的债。不叫我们遇见试探；救我们脱离凶恶。因为国度、权柄、荣耀，全是你的，直到永远。阿们。',
+      menus: [{
+        imgSrc: '../imgs/mzsm.png',
+        title: '扫码分享'
+      }, {
+        imgSrc: '../imgs/mzsm.png',
+        title: '打赏声明'
+      }, {
+        imgSrc: '../imgs/mzsm.png',
+        title: '免责声明'
+      }]
+    }
+
+    computed = {
+      now () {
+        return +new Date()
+      }
+    }
+
+    methods = {
+    }
+
+    events = {
+    }
+
+    onLoad() {
+      // let self = this
+      // this.$parent.getUserInfo(function (userInfo) {
+      //   if (userInfo) {
+      //     self.userInfo = userInfo
+      //   }
+      //   self.normalTitle = '标题已被修改'
+
+      //   self.setTimeoutTitle = '标题三秒后会被修改'
+      //   setTimeout(() => {
+      //     self.setTimeoutTitle = '到三秒了'
+      //     self.$apply()
+      //   }, 3000)
+
+      //   self.$apply()
+      // })
+    }
+
+    onShow() {
+      const timeoutId = setTimeout(() => {
+        this.timerId = setInterval(() => {
+          this.prayersTxt = this.prayersTxt.substring(1) + this.prayersTxt.substring(0, 1)
+          this.$apply()
+        }, 500)
+        clearTimeout(timeoutId)
+        console.log('开始定时器')
+      }, 1000)
+    }
+
+    onHide() {
+      clearInterval(this.timerId)
+
+      console.log('停止定时器')
+    }
+  }
+</script>
+<style lang="less">
+
+  .header {
+    width: 750rpx;
+    // height:(750rpx/9+60rpx);
+    // background-color: blue;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .prayers {
+    width: 650rpx;
+    overflow: hidden;
+    height: 20px;
+    font-size:13px;
+
+    label:nth-of-type(1){
+      font-weight: bold;
+      margin-right: 20rpx;
+      height:20px;
+      line-height: 20px;
+      color: black;
+    }
+
+    label:nth-of-type(2){
+      // background-color: red;
+      max-height:20px;
+      line-height: 20px;
+      color:#999;
+    }
+  }
+
+  .userinfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .userinfo-avatar {
+    width: 80rpx;
+    height: 80rpx;
+    border-radius: 50%;
+  }
+
+  .userinfo-nickname {
+    color: #aaa;
+  }
+</style>
