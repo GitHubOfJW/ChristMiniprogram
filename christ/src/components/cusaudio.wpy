@@ -1,9 +1,9 @@
 <template>
   <view class="audio">
-    <image src="../imgs/bars.svg"/> 
+    <image src="../static/imgs/bars.svg"/> 
     <view class="name">是你的绝情伤害了我</view>
-    <image src="../imgs/play.png"/>
-    <image src="../imgs/unsupport.png"/>
+    <image src="../static/imgs/play.png"/>
+    <image src="../static/imgs/unsupport.png"/>
   </view>
 </template>
 
@@ -19,7 +19,7 @@ export default class CusAudio extends wepy.component {
   .audio {
     width:650rpx;
     height:60px;
-    // background-color: blue;
+    background-color: white;
     position: relative;
 
     image {

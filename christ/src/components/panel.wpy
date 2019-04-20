@@ -45,9 +45,13 @@
       margin-left: 120rpx;
     }
   }
+
+  .clearPadding {
+    padding:0;
+  }
 </style>
 <template>
-  <view class="panel">
+  <view class="panel {{ noPadding ? 'clearPadding':'' }}">
     <view class="topline" wx:if="{{topLine}}"></view>
     <slot name="title">
       <!-- Title -->
@@ -65,6 +69,10 @@
       lines: {
         type: String,
         default: ''
+      },
+      noPadding: {
+        type: Boolean,
+        default: false
       }
     }
 
@@ -79,6 +87,9 @@
       },
       bottomLine() {
         return this.lines.includes('bottom')
+      },
+      noPadding() {
+        return this.lines.includes('noPadding')
       }
     }
   }
