@@ -21,22 +21,6 @@
       </view>
     </panel2>
 
-    <!-- 专辑 -->
-    <carditem class="card">
-      <label slot="title">新编赞美诗400首</label>
-    </carditem>
-
-
-    <!-- 专辑 -->
-    <carditem1 class="card">
-      <label slot="title">千首诗</label>
-    </carditem1>
-
-
-    <!-- 专辑 -->
-    <carditem2 class="card">
-      <label slot="title">圣经讲道</label>
-    </carditem2>
     <toast />
   </view>
 </template>
@@ -45,10 +29,8 @@
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
   import MenuItem from '@/components/menuitem'
-  import CardItem from '@/components/carditem'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
-
   import Toast from 'wepy-com-toast'
   import Mixins from '../mixins/mixins'
 
@@ -66,7 +48,7 @@
     }
   })
 
-  export default class Index extends wepy.page {
+  export default class Album extends wepy.page {
     config = {
       navigationBarTitleText: '基督随身听'
     }
@@ -76,9 +58,6 @@
       panel1: Panel,
       panel2: Panel,
       cusaudio: CusAudio,
-      carditem: CardItem,
-      carditem1: CardItem,
-      carditem2: CardItem,
       toast: Toast
     }
 
@@ -168,9 +147,7 @@
     position: fixed;
     width: 750rpx;
     justify-content: center;
-    background-color: white;
     display: flex;
-    z-index: 100;
     top:0;
     left:0;
   }
@@ -219,10 +196,5 @@
 
   .userinfo-nickname {
     color: #aaa;
-  }
-
-  .card {
-    width: 650rpx;
-    margin-top:30rpx;
   }
 </style>

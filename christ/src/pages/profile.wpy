@@ -3,40 +3,7 @@
     <panel class="voice" lines="bottom noPadding">
      <cusaudio></cusaudio>
     </panel>
-
-    <!-- 免责声明相关 -->
-    <panel1 lines="bottom">
-      <view class="header">
-      <repeat for="{{menus}}" key="index" index="index" item="menu">
-        <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
-      </repeat>
-      </view>
-    </panel1>
-
-    <!-- 祷告文 -->
-    <panel2 lines="bottom">
-      <view class="prayers">
-        <label for="祷告文">祷告词</label>
-        <label for="祷告文内容">{{prayersTxt}}</label>
-      </view>
-    </panel2>
-
-    <!-- 专辑 -->
-    <carditem class="card">
-      <label slot="title">新编赞美诗400首</label>
-    </carditem>
-
-
-    <!-- 专辑 -->
-    <carditem1 class="card">
-      <label slot="title">千首诗</label>
-    </carditem1>
-
-
-    <!-- 专辑 -->
-    <carditem2 class="card">
-      <label slot="title">圣经讲道</label>
-    </carditem2>
+ 
     <toast />
   </view>
 </template>
@@ -45,10 +12,8 @@
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
   import MenuItem from '@/components/menuitem'
-  import CardItem from '@/components/carditem'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
-
   import Toast from 'wepy-com-toast'
   import Mixins from '../mixins/mixins'
 
@@ -66,7 +31,7 @@
     }
   })
 
-  export default class Index extends wepy.page {
+  export default class Profile extends wepy.page {
     config = {
       navigationBarTitleText: '基督随身听'
     }
@@ -76,9 +41,6 @@
       panel1: Panel,
       panel2: Panel,
       cusaudio: CusAudio,
-      carditem: CardItem,
-      carditem1: CardItem,
-      carditem2: CardItem,
       toast: Toast
     }
 
@@ -130,14 +92,14 @@
     }
 
     onShow() {
-      const timeoutId = setTimeout(() => {
-        this.timerId = setInterval(() => {
-          this.prayersTxt = this.prayersTxt.substring(1) + this.prayersTxt.substring(0, 1)
-          this.$apply()
-        }, 500)
-        clearTimeout(timeoutId)
-        console.log('开始定时器')
-      }, 1000)
+      // const timeoutId = setTimeout(() => {
+      //   this.timerId = setInterval(() => {
+      //     this.prayersTxt = this.prayersTxt.substring(1) + this.prayersTxt.substring(0, 1)
+      //     this.$apply()
+      //   }, 500)
+      //   clearTimeout(timeoutId)
+      //   console.log('开始定时器')
+      // }, 1000)
 
       // const innerAudioContext = wx.createInnerAudioContext()
       // innerAudioContext.autoplay = true
@@ -153,9 +115,9 @@
     }
 
     onHide() {
-      clearInterval(this.timerId)
+      // clearInterval(this.timerId)
 
-      console.log('停止定时器')
+      // console.log('停止定时器')
     }
   }
 </script>
@@ -168,9 +130,7 @@
     position: fixed;
     width: 750rpx;
     justify-content: center;
-    background-color: white;
     display: flex;
-    z-index: 100;
     top:0;
     left:0;
   }
@@ -219,10 +179,5 @@
 
   .userinfo-nickname {
     color: #aaa;
-  }
-
-  .card {
-    width: 650rpx;
-    margin-top:30rpx;
   }
 </style>
