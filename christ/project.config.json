@@ -1,10 +1,13 @@
 {
 	"description": "在线收听赞美诗歌、圣经，传播基督福音。",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": false,
 		"postcss": false,
-		"minified": false
+		"minified": false,
+		"newFeature": true,
+		"autoAudits": false,
+		"checkInvalidKey": true
 	},
 	"compileType": "miniprogram",
 	"appid": "wx92589ad7fbbc7bf7",

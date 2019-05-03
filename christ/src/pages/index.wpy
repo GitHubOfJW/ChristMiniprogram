@@ -1,11 +1,11 @@
 <template>
-  <view class="container is_play">
-    <panel class="voice" lines="bottom noPadding">
+  <view class="container is_play" >
+    <panel class="voice" lines="bottom noPadding" wx:if="{{loading}}">
      <cusaudio></cusaudio>
     </panel>
 
     <!-- 免责声明相关 -->
-    <panel1 lines="bottom">
+    <panel1 lines="bottom" wx:if="{{loading}}">
       <view class="header">
       <repeat for="{{menus}}" key="index" index="index" item="menu">
         <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
@@ -14,57 +14,37 @@
     </panel1>
 
     <!-- 祷告文 -->
-    <panel2 lines="bottom">
-      <view class="prayers">
+    <panel2 lines="bottom" wx:if="{{loading}}">
+      <view @tap="paryersHandler" class="prayers">
         <label for="祷告文">祷告词</label>
         <label for="祷告文内容">{{prayersTxt}}</label>
       </view>
     </panel2>
 
     <!-- 专辑 -->
-    <carditem class="card">
-      <label slot="title">新编赞美诗400首</label>
-    </carditem>
+    <repeat for="{{albums}}" key="album.id" index="index" item="album">
+      <carditem @choose_album.user="chooseAlbum" class="card" :id_key="album.name" :image_url="album.big_url" wx:if="{{loading}}">
+        <label slot="title">{{album.name}}</label>
+      </carditem>
+    </repeat>
 
-
-    <!-- 专辑 -->
-    <carditem1 class="card">
-      <label slot="title">千首诗</label>
-    </carditem1>
-
-
-    <!-- 专辑 -->
-    <carditem2 class="card">
-      <label slot="title">圣经讲道</label>
-    </carditem2>
     <toast />
+    <csloading />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import { connect } from 'wepy-redux'
+  // import { connect } from 'wepy-redux'
   import MenuItem from '@/components/menuitem'
   import CardItem from '@/components/carditem'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
+  import CustomLoading from '@/components/customize/csLoading'
 
   import Toast from 'wepy-com-toast'
   import Mixins from '../mixins/mixins'
-
-  // console.log('moduleA ignored: ', moduleA) // => moduleA ignored: {}
-
-  @connect({
-    num (state) {
-      return state.counter.num
-    },
-    asyncNum (state) {
-      return state.counter.asyncNum
-    },
-    sumNum (state) {
-      return state.counter.num + state.counter.asyncNum
-    }
-  })
+  import { SHOW_LOADING, HIDE_LOADING } from '../store/types/csLoading'
 
   export default class Index extends wepy.page {
     config = {
@@ -77,9 +57,11 @@
       panel2: Panel,
       cusaudio: CusAudio,
       carditem: CardItem,
-      carditem1: CardItem,
-      carditem2: CardItem,
+      csloading: CustomLoading,
       toast: Toast
+    }
+
+    events = {
     }
 
     mixins = [Mixins]
@@ -96,7 +78,9 @@
       }, {
         imgSrc: '../static/imgs/mzsm.png',
         title: '免责声明'
-      }]
+      }],
+      loading: false, // 进入页面默认一片空白
+      albums: [] // 专辑
     }
 
     computed = {
@@ -106,27 +90,49 @@
     }
 
     methods = {
+      paryersHandler () {
+      },
+      chooseAlbum({source}) {
+        const index = source.$index
+        wepy.navigateTo({
+          url: 'album?id=' + this.albums[index].id
+        })
+      }
     }
 
     events = {
     }
 
     onLoad() {
-      // let self = this
-      // this.$parent.getUserInfo(function (userInfo) {
-      //   if (userInfo) {
-      //     self.userInfo = userInfo
-      //   }
-      //   self.normalTitle = '标题已被修改'
+      // 在这展示loading
+      wepy.$store.dispatch({
+        type: SHOW_LOADING,
+        payload: 1
+      })
+      // 发送请求获取首页
+      wepy.request({
+        url: 'http://192.168.2.106:3000/mini/index',
+        method: 'get',
+        dataType: 'json',
+        success: ({data}) => {
+          console.log(data.data.albums)
+          if (data.code === 20000) {
+            this.albums = data.data.albums.rows
+            console.log(data.data.albums.rows)
+          }
+        },
+        fail: () => {
 
-      //   self.setTimeoutTitle = '标题三秒后会被修改'
-      //   setTimeout(() => {
-      //     self.setTimeoutTitle = '到三秒了'
-      //     self.$apply()
-      //   }, 3000)
-
-      //   self.$apply()
-      // })
+        },
+        complete: () => {
+          setTimeout(() => {
+            this.loading = true
+            wepy.$store.dispatch({
+              type: HIDE_LOADING
+            })
+          }, 1500)
+        }
+      })
     }
 
     onShow() {
@@ -138,7 +144,6 @@
         clearTimeout(timeoutId)
         console.log('开始定时器')
       }, 1000)
-
       // const innerAudioContext = wx.createInnerAudioContext()
       // innerAudioContext.autoplay = true
       // // innerAudioContext.src = 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46'

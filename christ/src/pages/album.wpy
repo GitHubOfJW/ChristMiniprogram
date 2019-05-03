@@ -3,85 +3,28 @@
     <panel class="voice" lines="bottom noPadding">
      <cusaudio></cusaudio>
     </panel>
-
-    <!-- 免责声明相关 -->
-    <panel1 lines="bottom">
-      <view class="header">
-      <repeat for="{{menus}}" key="index" index="index" item="menu">
-        <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
-      </repeat>
-      </view>
-    </panel1>
-
-    <!-- 祷告文 -->
-    <panel2 lines="bottom">
-      <view class="prayers">
-        <label for="祷告文">祷告词</label>
-        <label for="祷告文内容">{{prayersTxt}}</label>
-      </view>
-    </panel2>
-
     <toast />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import { connect } from 'wepy-redux'
-  import MenuItem from '@/components/menuitem'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
   import Toast from 'wepy-com-toast'
-  import Mixins from '../mixins/mixins'
 
   // console.log('moduleA ignored: ', moduleA) // => moduleA ignored: {}
-
-  @connect({
-    num (state) {
-      return state.counter.num
-    },
-    asyncNum (state) {
-      return state.counter.asyncNum
-    },
-    sumNum (state) {
-      return state.counter.num + state.counter.asyncNum
-    }
-  })
-
   export default class Album extends wepy.page {
     config = {
-      navigationBarTitleText: '基督随身听'
+      navigationBarTitleText: '专辑'
     }
     components = {
-      menuitem: MenuItem,
       panel: Panel,
-      panel1: Panel,
-      panel2: Panel,
       cusaudio: CusAudio,
       toast: Toast
     }
 
-    mixins = [Mixins]
-
     data = {
-      timerId: null,
-      prayersTxt: '我们在天上的父,愿人都尊你的名为圣。愿你的国降临；愿你的旨意行在地上，如同行在天上。我们日用的饮食，今日赐给我们。免我们的债，如同我们免了人的债。不叫我们遇见试探；救我们脱离凶恶。因为国度、权柄、荣耀，全是你的，直到永远。阿们。',
-      menus: [{
-        imgSrc: '../static/imgs/mzsm.png',
-        title: '扫码分享'
-      }, {
-        imgSrc: '../static/imgs/mzsm.png',
-        title: '打赏声明'
-      }, {
-        imgSrc: '../static/imgs/mzsm.png',
-        title: '免责声明'
-      }]
-    }
-
-    computed = {
-      now () {
-        return +new Date()
-      }
     }
 
     methods = {
@@ -109,32 +52,8 @@
     }
 
     onShow() {
-      const timeoutId = setTimeout(() => {
-        this.timerId = setInterval(() => {
-          this.prayersTxt = this.prayersTxt.substring(1) + this.prayersTxt.substring(0, 1)
-          this.$apply()
-        }, 500)
-        clearTimeout(timeoutId)
-        console.log('开始定时器')
-      }, 1000)
-
-      // const innerAudioContext = wx.createInnerAudioContext()
-      // innerAudioContext.autoplay = true
-      // // innerAudioContext.src = 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46'
-      // innerAudioContext.src = 'http://localhost:3000/voice/abc.mp3'
-      // innerAudioContext.onPlay(() => {
-      //   console.log('开始播放')
-      // })
-      // innerAudioContext.onError((res) => {
-      //   console.log(res.errMsg)
-      //   console.log(res.errCode)
-      // })
     }
-
     onHide() {
-      clearInterval(this.timerId)
-
-      console.log('停止定时器')
     }
   }
 </script>

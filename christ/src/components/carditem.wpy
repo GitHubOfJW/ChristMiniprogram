@@ -1,10 +1,11 @@
 <template>
-  <view class="container album">
+  <view class="container album" @tap="handlerClick">
     <view class="title">
       <slot name="title"></slot>
     </view>
     <view class="img">
-      <image src="{{image_url}}" model="aspectFit" ></image>
+      <image src="../static/imgs/placeholder.jpg" model="aspectFill" ></image>
+      <image src="{{image_url}}" model="aspectFill" ></image>
     </view>
   </view>
 </template>
@@ -21,6 +22,12 @@ export default class CardItem extends wepy.component {
 
   data = {
 
+  }
+
+  methods = {
+    handlerClick() {
+      this.$emit('choose_album')
+    }
   }
 }
 
@@ -46,13 +53,23 @@ export default class CardItem extends wepy.component {
     .img {
       width:100%;
       height: 100%;
-      background-color: red;
       border-radius: 5px;
-      border:1px solid #8a8a8a;
+      // border:1px solid #8a8a8a;
+      overflow: hidden;
       height: 300rpx;
+      margin-bottom: 20rpx;
+      position: relative;
       image {
         width:100%;
         height:100%;
+        background-color: transparent;
+      }
+
+      image:nth-last-of-type(1){
+        z-index: 1;
+        position: absolute;
+        top:0;
+        left:0;
       }
     }
   }

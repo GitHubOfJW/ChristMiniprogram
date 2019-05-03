@@ -18,12 +18,14 @@ import configStore from './store'
 
 const store = configStore()
 setStore(store)
+wepy.$store = store
 
 export default class extends wepy.app {
   config = {
     pages: [
       'pages/index',
-      'pages/profile'
+      'pages/profile',
+      'pages/album'
     ],
     window: {
       backgroundTextStyle: 'light',
