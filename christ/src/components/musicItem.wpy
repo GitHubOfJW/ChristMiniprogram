@@ -1,0 +1,116 @@
+<template>
+  <view class="music {{ music_id === music.id ? 'checked' : '' }}" @tap="clickMusic">
+    <view class="numb">
+    <image wx:if="{{ music_id === music.id }}" src="../static/imgs/current.svg" model="aspectFill" /> 
+    <label wx:if="{{ music_id !== music.id }}">{{music.num}} .</label>
+    </view>
+    <view class="info">
+      <label>{{music.name}}</label>
+    </view>
+    <view class="action">
+      <image src="../static/imgs/support.png" model="aspectFill" ></image>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+
+@connect({
+  music_id(state) {
+    return state.musicPlayer.music_id
+  },
+  paused(state) {
+    return !state.musicPlayer.isPlaying
+  }
+})
+
+export default class MusicItem extends wepy.component {
+  props = {
+    music: {
+      type: Object,
+      default: {
+        name: '歌曲名称'
+      }
+    }
+  }
+
+  data = {
+
+  }
+
+  methods = {
+    clickMusic() {
+      this.$emit('choose_music', this.music)
+    }
+  }
+
+  computed = {
+  }
+}
+</script>
+
+<style lang="less" scoped>
+  .checked {
+    background-color: #fbfbfb;
+  }
+  .music {
+    width: 680rpx;
+    padding:0rpx;
+    height:80rpx;
+    border-radius: 2px;
+    display: flex;
+    // background-color: #fafafa;
+    justify-content: space-between;
+    position: relative;
+    // margin-bottom:2px;
+     
+    .numb {
+      width: 80rpx;
+      height: 80rpx;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      image {
+        width:40rpx;
+        height:40rpx;
+      }
+      label {
+        width:80rpx;
+        height:80rpx;
+        text-align: center;
+        line-height: 80rpx;
+        font-size:30rpx;
+        color: #888;
+      }
+    }
+
+    .info {
+      width:525rpx;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      label {
+        padding: 0rpx 15rpx;
+        font-size:30rpx;
+        height:80rpx;
+        line-height:80rpx;
+        color: #555;
+      }
+    }
+
+    .action {
+      width:70rpx;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      image {
+        width:45rpx;
+        height:45rpx;
+      }
+    }
+
+  }
+</style>

@@ -1,62 +1,104 @@
 <template>
   <view class="audio">
-    <image src="../static/imgs/bars.svg"/> 
-    <view class="name">是你的绝情伤害了我</view>
-    <image src="../static/imgs/play.png"/>
-    <image src="../static/imgs/unsupport.png"/>
+    <view class="img">
+      <image wx:if="{{ !paused }}" src="../static/imgs/music.svg" model="aspectFill" />
+      <image wx:if="{{ paused }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
+    </view>
+    <view class="name">
+      <label>{{ name }}</label>
+    </view>
+    <view class="actions">
+      <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+      <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+      <image @tap="supportHandler" src="../static/imgs/unsupport.png"/>
+    </view>
   </view>
 </template>
 
 <script>
 import wepy from 'wepy'
+import { connect } from 'wepy-redux'
+import MusicTool from '@/utils/MusicTool'
 
+@connect({
+  name(state) {
+    return state.musicPlayer.music_name
+  },
+  paused(state) {
+    return !state.musicPlayer.isPlaying
+  }
+})
 export default class CusAudio extends wepy.component {
+  methods = {
+    playHandler() {
+      MusicTool.playMusic()
+      this.$apply()
+    },
+    pauseHandler() {
+      MusicTool.pauseMusic()
+      this.$apply()
+    },
+    supportHandler() {
+      wepy.getUserInfo({
+        success: () => {
+          console.log('获取成功')
+        }
+      })
+    }
+  }
 
+  computed = {
+
+  }
 }
 </script>
 
 <style lang="less" scoped>
+   
   .audio {
     width:650rpx;
-    height:60px;
+    height:100rpx;
     background-color: white;
     position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     image {
-      width:20px;
-      height:20px;
-      // background-color: red;
-      transform: translateY(-50%);
-      position: relative;
-      top:50%;
-      z-index: 1;
-      animation-play-state: paused;
+      width: 45rpx;
+      height: 45rpx;
     }
 
-    image:nth-of-type(2) {
-      position: absolute;
-      right:40px;
-    }
-    image:nth-of-type(3) {
-      position: absolute;
-      right:0;
+    .img {
+      width:40rpx;
+      height:100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .name {
-      font-size:14px;
-      display: inline-block;
-      // background-color: yellow;
-      height: 60px;
-      line-height: 60px;
-      padding-left:35px;
-      padding-right:80px;
-      width:100%;
-      position: absolute;
-      left:0;
-      top:0;
-      box-sizing: border-box;
-      overflow: hidden;
+      width: 450rpx;
+      height: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+
+      label {
+        // display: inline-block;
+        width: 100%;
+        color:#666;
+        font-size: 30rpx;
+        padding-top:10rpx;
+      }
     }
-    
+
+    .actions {
+      width: 120rpx;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
   }
 </style>

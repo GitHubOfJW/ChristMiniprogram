@@ -1,54 +1,136 @@
 <template>
-  <view class="container is_play">
-    <panel class="voice" lines="bottom noPadding">
-     <cusaudio></cusaudio>
+  <view class="container {{ hasMusic ? 'is_play' : '' }}">
+    <panel class="voice" lines="bottom noPadding" wx:if="{{!isloading || hasMusic }}">
+     <cusaudio wx:if="{{hasMusic}}"></cusaudio>
     </panel>
+
+    <!-- 专辑 -->
+    <panel1 wx:if="{{!isloading}}">
+      <albumdetail :album.sync = "albumData"></albumdetail>
+    </panel1>
+
+    <view wx:if="{{!isloading}}" class="list">
+      <repeat for="{{musics}}" key="index" index="index" item="music">
+        <musicitem @choose_music.user="chooseMusic" :music.sync="music"></musicitem>
+      </repeat>
+    </view>
+
     <toast />
+    <csloading />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
+  import { connect } from 'wepy-redux'
+  import AlbumDetail from '@/components/albumdetail'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
+  import MusicItem from '@/components/musicItem'
+  import CustomLoading from '@/components/customize/csLoading'
+  import CsLoading from '@/utils/CsLoading'
   import Toast from 'wepy-com-toast'
+  import MusicTool from '@/utils/MusicTool'
+  import Request from '@/utils/request'
 
-  // console.log('moduleA ignored: ', moduleA) // => moduleA ignored: {}
+  @connect({
+    hasMusic(state) {
+      return state.musicPlayer.music_id > 0
+    }
+  })
+  
   export default class Album extends wepy.page {
     config = {
       navigationBarTitleText: '专辑'
     }
     components = {
       panel: Panel,
+      panel1: Panel,
+      panel2: Panel,
       cusaudio: CusAudio,
+      albumdetail: AlbumDetail,
+      csloading: CustomLoading,
+      musicitem: MusicItem,
       toast: Toast
     }
 
     data = {
+      albumData: {
+        big_url: '../static/imgs/placeholder.jpg',
+        name: '专辑的名称',
+        descr: '专辑的描述',
+        music_count: 0
+      },
+      musics: [],
+      isloading: true
     }
 
     methods = {
+      chooseMusic(music) {
+        MusicTool.resetMusic(music)
+        MusicTool.playMusic()
+      }
+    }
+
+    computed = {
     }
 
     events = {
     }
 
-    onLoad() {
-      // let self = this
-      // this.$parent.getUserInfo(function (userInfo) {
-      //   if (userInfo) {
-      //     self.userInfo = userInfo
-      //   }
-      //   self.normalTitle = '标题已被修改'
+    onLoad(option) {
+      CsLoading.showLoading()
+      this.isloading = true
+      // 获取到ID 发起请求
+      if (option && option.id) {
+        Request.request({
+          url: '/album/mini/' + option.id,
+          method: 'GET',
+          success: ({data}) => {
+            if (data.code === 20000) {
+              this.albumData.big_url = '../static/imgs/loading.svg'
+              this.albumData = data.data
+            }
+          },
+          fail: () => {
 
-      //   self.setTimeoutTitle = '标题三秒后会被修改'
-      //   setTimeout(() => {
-      //     self.setTimeoutTitle = '到三秒了'
-      //     self.$apply()
-      //   }, 3000)
+          },
+          complete: () => {
+            CsLoading.hideLoading({
+              success: () => {
+                this.isloading = false
+                this.$apply()
+              }
+            })
+          }
+        })
 
-      //   self.$apply()
-      // })
+        Request.request({
+          url: '/music/mini/list',
+          method: 'GET',
+          data: {
+            album_id: option.id
+          },
+          success: ({data}) => {
+            if (data.code === 20000) {
+              for (let music of data.data.items) {
+                this.musics.push(music)
+              }
+            }
+          },
+          fail: () => {
+
+          },
+          complete: () => {
+            CsLoading.hideLoading({
+              success: () => {
+              }
+            })
+          }
+        })
+      } else {
+        wepy.navigateBack()
+      }
     }
 
     onShow() {
@@ -59,7 +141,7 @@
 </script>
 <style lang="less">
   .is_play {
-    padding-top:60px;
+    padding-top:100rpx;
   }
 
   .voice {
@@ -70,50 +152,15 @@
     top:0;
     left:0;
   }
-
-  .header {
-    width: 750rpx;
-    // height:(750rpx/9+60rpx);
-    // background-color: blue;
-    display: flex;
-    justify-content: space-around;
-  }
-
-  .prayers {
-    width: 650rpx;
-    overflow: hidden;
-    height: 20px;
-    font-size:13px;
-
-    label:nth-of-type(1){
-      font-weight: bold;
-      margin-right: 20rpx;
-      height:20px;
-      line-height: 20px;
-      color: black;
-    }
-
-    label:nth-of-type(2){
-      // background-color: red;
-      max-height:20px;
-      line-height: 20px;
-      color:#999;
-    }
-  }
-
-  .userinfo {
+  
+  .list {
+    width: 680rpx;
+    border-radius: 3px;
+    padding:0rpx 20rpx 20rpx;
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
-  }
-
-  .userinfo-avatar {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-  }
-
-  .userinfo-nickname {
-    color: #aaa;
+    border-radius: 4px;
   }
 </style>

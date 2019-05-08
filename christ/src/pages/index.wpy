@@ -1,11 +1,11 @@
 <template>
-  <view class="container is_play" >
-    <panel class="voice" lines="bottom noPadding" wx:if="{{loading}}">
-     <cusaudio></cusaudio>
+  <view class="container {{ hasMusic ? 'is_play' : '' }}">
+    <panel class="voice" lines="bottom noPadding" wx:if="{{!isloading || hasMusic }}">
+     <cusaudio wx:if="{{hasMusic}}"></cusaudio>
     </panel>
 
     <!-- 免责声明相关 -->
-    <panel1 lines="bottom" wx:if="{{loading}}">
+    <panel1 lines="bottom" wx:if="{{!isloading}}">
       <view class="header">
       <repeat for="{{menus}}" key="index" index="index" item="menu">
         <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
@@ -14,7 +14,7 @@
     </panel1>
 
     <!-- 祷告文 -->
-    <panel2 lines="bottom" wx:if="{{loading}}">
+    <panel2 lines="bottom" wx:if="{{!isloading}}">
       <view @tap="paryersHandler" class="prayers">
         <label for="祷告文">祷告词</label>
         <label for="祷告文内容">{{prayersTxt}}</label>
@@ -23,7 +23,7 @@
 
     <!-- 专辑 -->
     <repeat for="{{albums}}" key="album.id" index="index" item="album">
-      <carditem @choose_album.user="chooseAlbum" class="card" :id_key="album.name" :image_url="album.big_url" wx:if="{{loading}}">
+      <carditem @choose_album.user="chooseAlbum" class="card" :id_key="album.name" :image_url="album.big_url" wx:if="{{!isloading}}">
         <label slot="title">{{album.name}}</label>
       </carditem>
     </repeat>
@@ -35,16 +35,21 @@
 
 <script>
   import wepy from 'wepy'
-  // import { connect } from 'wepy-redux'
+  import { connect } from 'wepy-redux'
   import MenuItem from '@/components/menuitem'
   import CardItem from '@/components/carditem'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
   import CustomLoading from '@/components/customize/csLoading'
-
+  import CsLoading from '@/utils/CsLoading'
   import Toast from 'wepy-com-toast'
-  import Mixins from '../mixins/mixins'
-  import { SHOW_LOADING, HIDE_LOADING } from '../store/types/csLoading'
+  import Request from '@/utils/request'
+
+  @connect({
+    hasMusic(state) {
+      return state.musicPlayer.music_id > 0
+    }
+  })
 
   export default class Index extends wepy.page {
     config = {
@@ -64,8 +69,6 @@
     events = {
     }
 
-    mixins = [Mixins]
-
     data = {
       timerId: null,
       prayersTxt: '我们在天上的父,愿人都尊你的名为圣。愿你的国降临；愿你的旨意行在地上，如同行在天上。我们日用的饮食，今日赐给我们。免我们的债，如同我们免了人的债。不叫我们遇见试探；救我们脱离凶恶。因为国度、权柄、荣耀，全是你的，直到永远。阿们。',
@@ -79,7 +82,7 @@
         imgSrc: '../static/imgs/mzsm.png',
         title: '免责声明'
       }],
-      loading: false, // 进入页面默认一片空白
+      isloading: true, // 进入页面默认一片空白
       albums: [] // 专辑
     }
 
@@ -105,32 +108,27 @@
 
     onLoad() {
       // 在这展示loading
-      wepy.$store.dispatch({
-        type: SHOW_LOADING,
-        payload: 1
-      })
+      CsLoading.showLoading()
+      this.isloading = true
       // 发送请求获取首页
-      wepy.request({
-        url: 'http://192.168.2.106:3000/mini/index',
+      Request.request({
+        url: '/mini/index',
         method: 'get',
         dataType: 'json',
         success: ({data}) => {
-          console.log(data.data.albums)
           if (data.code === 20000) {
             this.albums = data.data.albums.rows
-            console.log(data.data.albums.rows)
           }
         },
         fail: () => {
 
         },
         complete: () => {
-          setTimeout(() => {
-            this.loading = true
-            wepy.$store.dispatch({
-              type: HIDE_LOADING
-            })
-          }, 1500)
+          CsLoading.hideLoading({
+            success: () => {
+              this.isloading = false
+            }
+          })
         }
       })
     }
@@ -166,9 +164,9 @@
 </script>
 <style lang="less">
   .is_play {
-    padding-top:60px;
+    padding-top:100rpx;
   }
-
+ 
   .voice {
     position: fixed;
     width: 750rpx;
@@ -191,41 +189,25 @@
   .prayers {
     width: 650rpx;
     overflow: hidden;
-    height: 20px;
-    font-size:13px;
+    height: 60rpx;
+    font-size:30rpx;
 
     label:nth-of-type(1){
       font-weight: bold;
       margin-right: 20rpx;
-      height:20px;
-      line-height: 20px;
+      height:60rpx;
+      line-height: 60rpx;
       color: black;
     }
 
     label:nth-of-type(2){
       // background-color: red;
-      max-height:20px;
-      line-height: 20px;
+      max-height:60rpx;
+      line-height: 60rpx;
       color:#999;
     }
   }
-
-  .userinfo {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .userinfo-avatar {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-  }
-
-  .userinfo-nickname {
-    color: #aaa;
-  }
-
+ 
   .card {
     width: 650rpx;
     margin-top:30rpx;

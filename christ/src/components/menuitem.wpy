@@ -40,7 +40,7 @@ export default class MenuItem extends wepy.component {
       margin-top: 15rpx;
       text-align: center;
       color: #555;
-      font-size:12px;
+      font-size:30rpx;
     }
   }
 </style>
