@@ -1,0 +1,126 @@
+<template>
+  <view class="csview">
+    <!-- 滚动条 -->
+    <view class="pullDown" style="top:{{top}}px;">
+      <image src="../../static/imgs/fresh.svg" model="aspectFit"></image>
+      <label>{{ freshText }}</label>
+    </view>
+    <scroll-view class="scview" scroll-y bindscrolltoupper="scrolltoupper" bindscroll="scroll">
+      <view style="height:{{placeTopHeight}}px;"></view>
+      <view class="content">
+        <slot></slot>
+      </view>
+      <!-- <view class="pullUp">{{ scrollTop }}</view> -->
+    </scroll-view>
+    <view class="prompt">{{ top }}</view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class CsScrollView extends wepy.component {
+  props = {
+
+  }
+
+  data = {
+    top: -60,
+    scrollTop: 0,
+    downFlag: false,
+    upFalg: false,
+    placeTopHeight: 0,
+    freshText: '下拉刷新'
+  }
+  methods = {
+    scrolltoupper() {
+
+    },
+    scroll(e) {
+      const value = e.detail
+      if (value.scrollTop <= 0 && !this.downFlag) {
+        this.scrollTop = value.scrollTop
+        const top = -60 - value.scrollTop
+        this.top = top
+        this.downFlag = false
+        this.placeTopHeight = 0
+        // 更新数值
+        if (top >= 0) {
+          this.freshText = '正在刷新'
+          this.downFlag = true
+          this.placeTopHeight = -this.scrollTop
+        } else if (top >= -20) {
+          this.freshText = '即将刷新'
+        } else {
+          this.freshText = '下拉刷新'
+        }
+      }
+    }
+  }
+}
+</script>
+
+<style lang="less" scoped>
+  .csview {
+    // position: relative;
+    overflow: hidden;
+    .prompt {
+      height: 80px;
+      left: 0;
+      bottom: 80px;
+      position: absolute;
+      // background-color: red;
+    }
+
+    .pullDown {
+      // background-color: red;
+      height: 60px;
+      width: 100%;
+      position: absolute;
+      left:0;
+      right:0;
+      top: -60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 10;
+
+      image {
+        width: 20px;
+        height: 20px;
+      }
+
+      label {
+        width: 100%;
+        height: 15px;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    }
+
+    .scview {
+      width:100%;
+      height: 100%;
+      position: relative;
+      background-color: #fbfbfb;
+     
+  
+      .content {
+        padding-left:35rpx;
+        padding-right:35rpx;
+        height: 200%;
+        z-index: 100;
+        background-color: white;
+      }
+
+      .pullUp {
+        background-color: red;
+        height: 60px;
+        position: absolute;
+        left:0rpx;
+        right:0rpx;
+        bottom:0rpx;
+      }
+    }
+  }
+</style>

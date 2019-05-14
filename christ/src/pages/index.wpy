@@ -1,11 +1,9 @@
 <template>
   <view class="container {{ hasMusic ? 'is_play' : '' }}">
-    <panel class="voice" lines="bottom noPadding" wx:if="{{!isloading || hasMusic }}">
-     <cusaudio wx:if="{{hasMusic}}"></cusaudio>
-    </panel>
+    <cusaudio></cusaudio>
 
     <!-- 免责声明相关 -->
-    <panel1 lines="bottom" wx:if="{{!isloading}}">
+    <panel1 lines="bottom"  wx:if="{{!isloading}}">
       <view class="header">
       <repeat for="{{menus}}" key="index" index="index" item="menu">
         <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
@@ -142,17 +140,6 @@
         clearTimeout(timeoutId)
         console.log('开始定时器')
       }, 1000)
-      // const innerAudioContext = wx.createInnerAudioContext()
-      // innerAudioContext.autoplay = true
-      // // innerAudioContext.src = 'http://ws.stream.qqmusic.qq.com/M500001VfvsJ21xFqb.mp3?guid=ffffffff82def4af4b12b3cd9337d5e7&uin=346897220&vkey=6292F51E1E384E061FF02C31F716658E5C81F5594D561F2E88B854E81CAAB7806D5E4F103E55D33C16F3FAC506D1AB172DE8600B37E43FAD&fromtag=46'
-      // innerAudioContext.src = 'http://localhost:3000/voice/abc.mp3'
-      // innerAudioContext.onPlay(() => {
-      //   console.log('开始播放')
-      // })
-      // innerAudioContext.onError((res) => {
-      //   console.log(res.errMsg)
-      //   console.log(res.errCode)
-      // })
     }
 
     onHide() {
@@ -165,17 +152,6 @@
 <style lang="less">
   .is_play {
     padding-top:100rpx;
-  }
- 
-  .voice {
-    position: fixed;
-    width: 750rpx;
-    justify-content: center;
-    background-color: white;
-    display: flex;
-    z-index: 100;
-    top:0;
-    left:0;
   }
 
   .header {

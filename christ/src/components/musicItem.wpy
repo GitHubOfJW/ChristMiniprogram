@@ -8,7 +8,8 @@
       <label>{{music.name}}</label>
     </view>
     <view class="action">
-      <image src="../static/imgs/support.png" model="aspectFill" ></image>
+      <image wx:if="{{ music.favorite && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />
+      <image wx:if="{{ !music.favorite || music.favorite.is_delete }}" @tap.stop="supportHandler" src="../static/imgs/support.png" model="aspectFit" />
     </view>
   </view>
 </template>
@@ -23,6 +24,9 @@ import { connect } from 'wepy-redux'
   },
   paused(state) {
     return !state.musicPlayer.isPlaying
+  },
+  favorite(state) {
+    return state.musicPlayer.favorite
   }
 })
 
@@ -43,6 +47,18 @@ export default class MusicItem extends wepy.component {
   methods = {
     clickMusic() {
       this.$emit('choose_music', this.music)
+    },
+    unsupportHandler() {
+      this.$emit('favorite', {
+        music_id: this.music.id,
+        favorite: false
+      })
+    },
+    supportHandler() {
+      this.$emit('favorite', {
+        music_id: this.music.id,
+        favorite: true
+      })
     }
   }
 
@@ -102,9 +118,9 @@ export default class MusicItem extends wepy.component {
     }
 
     .action {
-      width:70rpx;
+      width:80rpx;
       display: flex;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       image {
         width:45rpx;

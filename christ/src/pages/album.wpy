@@ -1,19 +1,17 @@
 <template>
   <view class="container {{ hasMusic ? 'is_play' : '' }}">
-    <panel class="voice" lines="bottom noPadding" wx:if="{{!isloading || hasMusic }}">
-     <cusaudio wx:if="{{hasMusic}}"></cusaudio>
-    </panel>
+    <cusaudio :inPage.sync="inPage"></cusaudio>
 
     <!-- 专辑 -->
     <panel1 wx:if="{{!isloading}}">
       <albumdetail :album.sync = "albumData"></albumdetail>
     </panel1>
 
-    <view wx:if="{{!isloading}}" class="list">
+    <csscrollview wx:if="{{!isloading}}" class="list {{ hasMusic ? 'list_play' : ''}}">
       <repeat for="{{musics}}" key="index" index="index" item="music">
-        <musicitem @choose_music.user="chooseMusic" :music.sync="music"></musicitem>
+        <musicitem :music.sync="music"></musicitem>
       </repeat>
-    </view>
+    </csscrollview>
 
     <toast />
     <csloading />
@@ -29,8 +27,10 @@
   import MusicItem from '@/components/musicItem'
   import CustomLoading from '@/components/customize/csLoading'
   import CsLoading from '@/utils/CsLoading'
+  import CsScrollView from '@/components/customize/csScrollView'
   import Toast from 'wepy-com-toast'
   import MusicTool from '@/utils/MusicTool'
+  import AccountTool from '@/utils/AccountTool'
   import Request from '@/utils/request'
 
   @connect({
@@ -41,8 +41,10 @@
   
   export default class Album extends wepy.page {
     config = {
-      navigationBarTitleText: '专辑'
+      navigationBarTitleText: '专辑',
+      disableScroll: false
     }
+
     components = {
       panel: Panel,
       panel1: Panel,
@@ -50,6 +52,7 @@
       cusaudio: CusAudio,
       albumdetail: AlbumDetail,
       csloading: CustomLoading,
+      csscrollview: CsScrollView,
       musicitem: MusicItem,
       toast: Toast
     }
@@ -61,14 +64,46 @@
         descr: '专辑的描述',
         music_count: 0
       },
+      inPage: true,
       musics: [],
       isloading: true
     }
 
     methods = {
-      chooseMusic(music) {
-        MusicTool.resetMusic(music)
-        MusicTool.playMusic()
+      music_favorite: (id, status) => {
+        const openid = AccountTool.getOpenid()
+        Request.request({
+          url: '/favorite/mini/favorite',
+          method: 'POST',
+          data: {
+            music_id: id,
+            openid: openid,
+            status: status
+          },
+          success: ({data}) => {
+            for (let i = 0; i < parseInt((this.musics.length + 1) * 0.5); i++) {
+              const preObj = this.musics[i]
+              const endObj = this.musics[this.musics.length - i - 1]
+              if (preObj.id === id) {
+                preObj.favorite = status ? {music_id: id, open_id: openid, is_delete: !status} : null
+                this.musics.splice(i, 1, preObj)
+              } else if (endObj.id === id && i !== this.musics.length - i - 1) {
+                endObj.favorite = status ? {music_id: id, open_id: openid, is_delete: !status} : null
+                this.musics.splice(this.musics.length - i - 1, 1, endObj)
+              }
+            }
+            this.$apply()
+            if (wepy.$store.getState().musicPlayer.music_id === id) {
+              MusicTool.favoriteMusic(status)
+            }
+          },
+          fail: () => {
+
+          },
+          complete: () => {
+
+          }
+        })
       }
     }
 
@@ -76,6 +111,16 @@
     }
 
     events = {
+      favorite: ({music_id, favorite}) => {
+        this.methods.music_favorite(music_id, favorite)
+      },
+      choose_music: (music) => {
+        if (music.favorite && music.favorite.is_delete) {
+          music.favorite = null
+        }
+        MusicTool.resetMusic(music)
+        MusicTool.playMusic()
+      }
     }
 
     onLoad(option) {
@@ -143,24 +188,29 @@
   .is_play {
     padding-top:100rpx;
   }
-
-  .voice {
-    position: fixed;
-    width: 750rpx;
-    justify-content: center;
-    display: flex;
-    top:0;
-    left:0;
+ 
+  .container {
+    width: 100%;
+    height:100%;
   }
   
   .list {
-    width: 680rpx;
+    position: absolute;
+    // width: 750rpx;
+    left: 0rpx;
+    right: 0rpx;
+    top: 380rpx;
+    bottom:20rpx;
     border-radius: 3px;
-    padding:0rpx 20rpx 20rpx;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     border-radius: 4px;
+  }
+
+  .list_play {
+    top: 480rpx;
   }
 </style>

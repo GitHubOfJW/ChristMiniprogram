@@ -1,0 +1,71 @@
+<template>
+  <view class="item">
+    <image src="{{ menu.icon }}" model="AspectFit"></image>
+    <label class="title">{{ menu.title }}</label>
+    <label class="subTitle">{{ menu.subTitle }}</label>
+    <image src="../static/imgs/arrow.svg" model="AspectFit"></image>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+
+export default class TableItem extends wepy.component {
+  props = {
+    menu: {
+      type: Object,
+      default: {
+        icon: '../static/imgs/mzsm.png',
+        title: '标题',
+        subTitle: '自标题'
+      }
+    }
+  }
+
+  onLoad() {
+
+  }
+
+  watchs = {
+    itemObj(newValue, oldValue) {
+      console.log(newValue, oldValue)
+    }
+  }
+}
+</script>
+
+<style lang="less" scoped>
+  .item {
+    width:100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100rpx;
+    background-color: red;
+
+    image {
+      margin-left: 30rpx;
+      width: 50rpx;
+      height: 50rpx;
+    }
+
+    .title {
+      width: 300rpx;
+      font-size: 30rpx;
+      margin-left: 25rpx;
+      padding: 0rpx;
+      color: #555;
+    }
+
+    .subTitle {
+      width: 280rpx;
+      font-size: 29rpx;
+      text-align: right;
+      color: #555;
+    }
+
+    image:nth-last-of-type(1){
+      margin-left: 10rpx;
+    }
+  }
+</style>

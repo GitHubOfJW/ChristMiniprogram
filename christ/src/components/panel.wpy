@@ -1,4 +1,61 @@
-<style lang="less">
+<template>
+  <view class="panel {{paddingClass}}">
+    <view class="topline" wx:if="{{topLine}}"></view>
+    <view class="placeContent"></view>
+    <slot name="title">
+      <!-- Title -->
+    </slot>
+    <slot>
+    </slot>
+    <view class="bottomline" wx:if="{{bottomLine}}"></view>
+  </view>
+</template>
+<script>
+  import wepy from 'wepy'
+
+  export default class Panel extends wepy.component {
+    props = {
+      padding: {
+        type: String,
+        default: ''
+      },
+      lines: {
+        type: String,
+        default: ''
+      }
+    }
+
+    data = {
+      top: false,
+      bottom: false
+    }
+
+    computed = {
+      paddingClass() {
+        if (this.padding.includes('clearAll')) {
+          return 'clearPadding'
+        }
+        if (this.padding.includes('clearTop')) {
+          return 'clearTop'
+        }
+        if (this.padding.includes('clearBottom')) {
+          return 'clearBottom'
+        }
+        if (this.padding.includes('small')) {
+          return 'smallPadding'
+        }
+        return ''
+      },
+      topLine() {
+        return this.lines.includes('top')
+      },
+      bottomLine() {
+        return this.lines.includes('bottom')
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
   .panel {
     width: 100%;
     min-height: 2px;
@@ -11,7 +68,7 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background-color: white;
+    background-color: transparent;
 
     .topline {
       width: 100%;
@@ -35,8 +92,7 @@
 
     .title {
       padding-bottom: 20rpx;
-      font-size:39rpx;
-      font-weight: bold;
+      font-size:33rpx;
     }
     .info {
       padding: 15rpx;
@@ -51,51 +107,19 @@
   }
 
   .clearPadding {
-    padding:0;
+    padding: 0rpx;
+  }
+
+  .clearTop {
+    padding-top: 0rpx;
+  }
+
+  .clearBottom {
+    padding-bottom: 0rpx;
+  }
+
+  .smallPadding {
+    padding-top: 30rpx;
+    padding-bottom: 30rpx;
   }
 </style>
-<template>
-  <view class="panel {{ noPadding ? 'clearPadding':'' }}">
-    <view class="topline" wx:if="{{topLine}}"></view>
-    <view class="placeContent"></view>
-    <slot name="title">
-      <!-- Title -->
-    </slot>
-    <slot>
-    </slot>
-    <view class="bottomline" wx:if="{{bottomLine}}"></view>
-  </view>
-</template>
-<script>
-  import wepy from 'wepy'
-
-  export default class Panel extends wepy.component {
-    props = {
-      lines: {
-        type: String,
-        default: ''
-      },
-      noPadding: {
-        type: Boolean,
-        default: false
-      }
-    }
-
-    data = {
-      top: false,
-      bottom: false
-    }
-
-    computed = {
-      topLine() {
-        return this.lines.includes('top')
-      },
-      bottomLine() {
-        return this.lines.includes('bottom')
-      },
-      noPadding() {
-        return this.lines.includes('noPadding')
-      }
-    }
-  }
-</script>

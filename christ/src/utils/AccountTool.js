@@ -1,6 +1,10 @@
 import wepy from 'wepy'
 import Request from '@/utils/request'
 export default class AccountTool {
+  static getOpenid() {
+    const openid = wx.getStorageSync('openid')
+    return openid
+  }
   // 获取openid
   static login() {
     const openid = wx.getStorageSync('openid')
@@ -12,14 +16,12 @@ export default class AccountTool {
       success(res) {
         if (res.code) {
           // 发起网络请求
-          console.log(res)
           Request.request({
             url: '/user/mini/login',
             data: {
               code: res.code
             },
             success: ({data}) => {
-              console.log(data)
               if (data.code === 20000) {
                 wepy.setStorage({
                   key: 'openid',
@@ -28,7 +30,7 @@ export default class AccountTool {
               }
             },
             fail: () => {
-              console.log('获取失败')
+              console.log('获取openid失败')
             }
           })
         }

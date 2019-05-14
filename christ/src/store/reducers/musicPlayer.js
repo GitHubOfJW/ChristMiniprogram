@@ -1,5 +1,5 @@
 import { handleActions } from 'redux-actions'
-import { PLAY_MUSIC, PAUSE_MUSIC, RESET_MUSIC, ON_EVENT, OFF_EVENT } from '../types/musicPlayer'
+import { PLAY_MUSIC, PAUSE_MUSIC, STOP_MUSIC, RESET_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT } from '../types/musicPlayer'
 import wepy from 'wepy'
 export default handleActions({
   [RESET_MUSIC] (state, action) {
@@ -27,6 +27,7 @@ export default handleActions({
       music_name: action.payload.name,
       music_id: action.payload.id,
       isPlaying: false,
+      favorite: !!action.payload.favorite,
       musicInstance: instance
     }
   },
@@ -57,6 +58,21 @@ export default handleActions({
       isPlaying: false
     }
   },
+  [STOP_MUSIC] (state) {
+    if (state.musicInstance) {
+      state.musicInstance.stop()
+      return {
+        ...state,
+        isPlaying: false
+      }
+    }
+  },
+  [FAVORITE_MUSIC] (state, action) {
+    return {
+      ...state,
+      favorite: action.payload.favorite
+    }
+  },
   [ON_EVENT] (state, action) {
     const { type = '', fn } = action.payload
     if (state.musicInstance) {
@@ -81,5 +97,6 @@ export default handleActions({
   isPlaying: false,
   music_id: 0,
   musicInstance: null,
+  favorite: false,
   events: {}
 })

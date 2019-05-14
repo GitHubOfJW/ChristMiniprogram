@@ -1,17 +1,21 @@
 <template>
-  <view class="audio">
-    <view class="img">
-      <image wx:if="{{ !paused }}" src="../static/imgs/music.svg" model="aspectFill" />
-      <image wx:if="{{ paused }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
+  <view class="player">
+    <view class="audio" wx:if="{{hasMusic}}">
+      <view class="img">
+        <image wx:if="{{ !paused }}" src="../static/imgs/music.svg" model="aspectFill" />
+        <image wx:if="{{ paused }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
+      </view>
+      <view class="name">
+        <label>{{ name }}</label>
+      </view>
+      <view class="actions">
+        <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
+        <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
+      </view>
     </view>
-    <view class="name">
-      <label>{{ name }}</label>
-    </view>
-    <view class="actions">
-      <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
-      <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
-      <image @tap="supportHandler" src="../static/imgs/unsupport.png"/>
-    </view>
+    <view class="line"></view>
   </view>
 </template>
 
@@ -19,16 +23,33 @@
 import wepy from 'wepy'
 import { connect } from 'wepy-redux'
 import MusicTool from '@/utils/MusicTool'
+// import Request from '@/utils/request'
+// import AccountTool from '@/utils/AccountTool'
+import { favoriteMusic } from '@/store/actions/musicPlayer'
 
 @connect({
+  hasMusic(state) {
+    return state.musicPlayer.music_id > 0
+  },
   name(state) {
     return state.musicPlayer.music_name
   },
   paused(state) {
     return !state.musicPlayer.isPlaying
+  },
+  favorite(state) {
+    return state.musicPlayer.favorite
   }
 })
 export default class CusAudio extends wepy.component {
+  props = {
+    // 如果是跟歌曲在一页
+    inPage: {
+      type: Boolean,
+      default: false
+    }
+  }
+
   methods = {
     playHandler() {
       MusicTool.playMusic()
@@ -39,11 +60,24 @@ export default class CusAudio extends wepy.component {
       this.$apply()
     },
     supportHandler() {
-      wepy.getUserInfo({
-        success: () => {
-          console.log('获取成功')
-        }
-      })
+      if (this.inPage) {
+        this.$emit('favorite', {
+          music_id: wepy.$store.getState().musicPlayer.music_id,
+          favorite: true
+        })
+        return
+      }
+      favoriteMusic(true)
+    },
+    unsupportHandler() {
+      if (this.inPage) {
+        this.$emit('favorite', {
+          music_id: wepy.$store.getState().musicPlayer.music_id,
+          favorite: false
+        })
+        return
+      }
+      favoriteMusic(false)
     }
   }
 
@@ -54,51 +88,74 @@ export default class CusAudio extends wepy.component {
 </script>
 
 <style lang="less" scoped>
-   
-  .audio {
-    width:650rpx;
-    height:100rpx;
+  .player {
+    width:750rpx;
+    position: fixed;
     background-color: white;
-    position: relative;
+    min-height: 2px;
+    z-index: 100;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    top:0rpx;
 
-    image {
-      width: 45rpx;
-      height: 45rpx;
-    }
-
-    .img {
-      width:40rpx;
-      height:100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .name {
-      width: 450rpx;
-      height: 100%;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-
-      label {
-        // display: inline-block;
-        width: 100%;
-        color:#666;
-        font-size: 30rpx;
-        padding-top:10rpx;
-      }
-    }
-
-    .actions {
-      width: 120rpx;
-      height: 100%;
+    .audio {
+      width:650rpx;
+      height:100rpx;
+      background-color: white;
+      position: relative;
       display: flex;
       justify-content: space-between;
       align-items: center;
+
+      image {
+        width: 45rpx;
+        height: 45rpx;
+      }
+
+      .img {
+        width:40rpx;
+        height:100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .name {
+        width: 450rpx;
+        height: 100%;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        label {
+          // display: inline-block;
+          width: 100%;
+          color:#666;
+          font-size: 30rpx;
+          padding-top:10rpx;
+        }
+      }
+
+      .actions {
+        width: 120rpx;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+    }
+
+
+    .line {
+      width: 750rpx;
+      height: 1px;
+      background-color: #f2f2f2;
+      transform:scaleY(0.768);
+      position: absolute;
+      bottom:1rpx;
+      left:0;
     }
   }
 </style>
