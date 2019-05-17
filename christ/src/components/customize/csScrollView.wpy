@@ -14,7 +14,7 @@
         <label>{{freshBottomText}}</label>
       </view>
     </scroll-view>
-    <view class="prompt">{{ scrollTop }}</view>
+    <!-- <view class="prompt">{{ scrollTop }}</view> -->
   </view>
 </template>
 
