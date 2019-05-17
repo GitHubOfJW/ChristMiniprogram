@@ -81,7 +81,7 @@ export default class MusicItem extends wepy.component {
     justify-content: space-between;
     position: relative;
     // margin-bottom:2px;
-     
+    
     .numb {
       width: 80rpx;
       height: 80rpx;

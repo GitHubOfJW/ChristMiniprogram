@@ -1,18 +1,20 @@
 <template>
   <view class="csview">
-    <!-- 滚动条 -->
-    <view class="pullDown" style="top:{{top}}px;">
-      <image src="../../static/imgs/fresh.svg" model="aspectFit"></image>
-      <label>{{ freshText }}</label>
-    </view>
-    <scroll-view class="scview" scroll-y bindscrolltoupper="scrolltoupper" bindscroll="scroll">
-      <view style="height:{{placeTopHeight}}px;"></view>
+    <scroll-view class="scview" lower-threshold="40" upper-threshold="{{bottomTop}}" bindscrolltolower="bottomHander" scroll-with-animation bindtouchend="touchEnd"  scroll-y bindscroll="scroll" scroll-top="{{scrollOffset}}">
+      <!-- 滚动条 -->
+      <view class="pullDown">
+        <image src="../../static/imgs/fresh.svg" model="aspectFit"></image>
+        <label>{{ freshText }}</label>
+      </view>
       <view class="content">
         <slot></slot>
       </view>
-      <!-- <view class="pullUp">{{ scrollTop }}</view> -->
+      <!-- 底部刷新 -->
+      <view class="pullUp">
+        <label>{{freshBottomText}}</label>
+      </view>
     </scroll-view>
-    <view class="prompt">{{ top }}</view>
+    <view class="prompt">{{ scrollTop }}</view>
   </view>
 </template>
 
@@ -20,40 +22,99 @@
 import wepy from 'wepy'
 export default class CsScrollView extends wepy.component {
   props = {
-
+    autoFresh: {
+      type: Boolean,
+      default: false
+    }
   }
 
   data = {
-    top: -60,
     scrollTop: 0,
+    currentTop: 0,
     downFlag: false,
     upFalg: false,
-    placeTopHeight: 0,
-    freshText: '下拉刷新'
+    scrollOffset: 60,
+    freshText: '下拉刷新',
+    freshBottomText: '上拉刷新',
+    bottomRelative: 60
   }
   methods = {
-    scrolltoupper() {
-
+    // 顶部开始滚动事件
+    header_beginRefresh: () => {
+      this.freshText = '正在刷新'
+      this.downFlag = true
+      // this.setData({
+      //   scrollOffset: 0.0
+      // })
+      this.scrollOffset = 0
+      this.$apply()
+      // 只要是下拉刷新，主动触发刷新方法
+      this.$emit('headerRefreshHandler')
     },
-    scroll(e) {
+    // 顶部滚动停止
+    header_endRefresh: () => {
+      // this.setData({
+      //   scrollOffset: 60.1
+      // })
+      this.scrollOffset = 60
+      this.downFlag = false
+      this.freshText = '下拉刷新'
+      this.$apply()
+    },
+    // 底部开始刷新
+    footer_beginRefresh: () => {
+      this.freshBottomText = '正在刷新'
+      this.upFalg = true
+      // this.setData({
+      //   scrollOffset: 0.0
+      // })
+      this.scrollOffset = this.bottomRelative + 40
+      this.$apply()
+      // 只要是上拉刷新，主动触发刷新方法
+      this.$emit('footerRefreshHandler')
+    },
+    // 底部停止刷新
+    footer_endRefresh: () => {
+      this.scrollOffset = this.bottomRelative
+      this.upFalg = false
+      this.freshBottomText = '上拉刷新'
+      this.$apply()
+    },
+    touchEnd: () => {
+      // 松开刷新
+      if (this.currentTop <= 0) {
+        this.methods.header_beginRefresh()
+      } else if (this.currentTop <= 60) {
+        this.methods.header_endRefresh()
+      } else if (this.currentTop < this.bottomRelative + 40) {
+        this.methods.footer_endRefresh()
+      } else if (this.currentTop >= this.bottomRelative + 40) {
+        this.methods.footer_beginRefresh()
+      }
+    },
+    scroll: (e) => {
       const value = e.detail
-      if (value.scrollTop <= 0 && !this.downFlag) {
-        this.scrollTop = value.scrollTop
-        const top = -60 - value.scrollTop
-        this.top = top
-        this.downFlag = false
-        this.placeTopHeight = 0
-        // 更新数值
-        if (top >= 0) {
-          this.freshText = '正在刷新'
-          this.downFlag = true
-          this.placeTopHeight = -this.scrollTop
-        } else if (top >= -20) {
-          this.freshText = '即将刷新'
+      this.scrollTop = value.scrollTop
+      if (value.scrollTop <= 60 && !this.downFlag) {
+        this.currentTop = value.scrollTop
+        if (this.scrollTop <= 0) {
+          this.freshText = '松开刷新'
         } else {
           this.freshText = '下拉刷新'
         }
+        // 如果参考的位置+40 就到达了底部  根据临界点判断文字的显示
+      } else if (this.bottomRelative > 0 && value.scrollTop > this.bottomRelative && !this.upFalg) {
+        this.currentTop = value.scrollTop
+        if (this.scrollTop >= this.bottomRelative + 40) {
+          this.freshBottomText = '松开刷新'
+        } else {
+          this.freshBottomText = '上拉刷新'
+        }
       }
+    },
+    bottomHander: () => {
+      // console.log('触发了底部临界点', this.bottomRelative)
+      // this.bottomRelative = this.scrollTop
     }
   }
 }
@@ -71,55 +132,55 @@ export default class CsScrollView extends wepy.component {
       // background-color: red;
     }
 
-    .pullDown {
-      // background-color: red;
-      height: 60px;
-      width: 100%;
-      position: absolute;
-      left:0;
-      right:0;
-      top: -60px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 10;
-
-      image {
-        width: 20px;
-        height: 20px;
-      }
-
-      label {
-        width: 100%;
-        height: 15px;
-        text-align: center;
-        margin-bottom: 10px;
-      }
-    }
-
     .scview {
       width:100%;
       height: 100%;
       position: relative;
-      background-color: #fbfbfb;
+      background-color: #eeeeee;
      
+     .pullDown {
+        // background-color: red;
+        height: 60px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 10;
+
+        image {
+          margin-top:10px;
+          width: 20px;
+          height: 20px;
+        }
+
+        label {
+          width: 100%;
+          height: 15px;
+          text-align: center;
+          margin-bottom: 10px;
+          font-size:12px;
+        }
+      }
   
       .content {
-        padding-left:35rpx;
-        padding-right:35rpx;
-        height: 200%;
+        // padding-left:35rpx;
+        // padding-right:35rpx;
+        padding: 20rpx 35rpx;
+        box-sizing: border-box;
+        height: 100%;
         z-index: 100;
         background-color: white;
       }
 
       .pullUp {
-        background-color: red;
-        height: 60px;
-        position: absolute;
-        left:0rpx;
-        right:0rpx;
-        bottom:0rpx;
+        background-color: #eeeeee;
+        height: 40px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 12px;
       }
     }
   }

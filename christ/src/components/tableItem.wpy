@@ -1,5 +1,6 @@
 <template>
   <view class="item">
+    <view class="line" wx:if="{{!menu.hideLine}}"></view>
     <image src="{{ menu.icon }}" model="AspectFit"></image>
     <label class="title">{{ menu.title }}</label>
     <label class="subTitle">{{ menu.subTitle }}</label>
@@ -17,19 +18,14 @@ export default class TableItem extends wepy.component {
       default: {
         icon: '../static/imgs/mzsm.png',
         title: '标题',
-        subTitle: '自标题'
+        subTitle: '自标题',
+        hideLine: false
       }
     }
   }
 
   onLoad() {
 
-  }
-
-  watchs = {
-    itemObj(newValue, oldValue) {
-      console.log(newValue, oldValue)
-    }
   }
 }
 </script>
@@ -41,7 +37,23 @@ export default class TableItem extends wepy.component {
     justify-content: flex-start;
     align-items: center;
     height: 100rpx;
-    background-color: red;
+    background-color: white;
+    position: relative;
+
+     
+    .line {
+      position: absolute;
+      left:30rpx;
+      top:0;
+      right:30rpx;
+      height:1px;
+      transform: scaleY(0.768);
+      background-color: #f2f2f2;
+    }
+
+    .firstLine {
+      left:0rpx;
+    }
 
     image {
       margin-left: 30rpx;

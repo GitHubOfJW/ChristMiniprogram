@@ -30,13 +30,13 @@
     </panel1>
 
     <!-- 底下的页面 -->
-    <panel2 padding='clearTop'>
+    <panel2 padding='clearAll' lines="bottom top">
       <repeat for="{{proList}}" key="idx" index="idx" item="item">
         <tableitem :menu.sync="item"></tableitem>
       </repeat>
     </panel2>
 
-    <panel3 padding='clearTop'>
+    <panel3 padding='small clearAll' lines="bottom top" margin="top">
       <repeat for="{{otherList}}" key="idx" index="idx" item="item">
         <tableitem :menu.sync="item"></tableitem>
       </repeat>
@@ -63,7 +63,8 @@
   
   export default class Profile extends wepy.page {
     config = {
-      navigationBarTitleText: '我的'
+      navigationBarTitleText: '我的',
+      backgroundColor: 'red'
     }
     components = {
       panel: Panel,
@@ -84,7 +85,8 @@
       proList: [{
         icon: '../static/imgs/mzsm.png',
         title: '我的收藏',
-        subTitle: ''
+        subTitle: '',
+        hideLine: true
       }, {
         icon: '../static/imgs/mzsm.png',
         title: '播放记录',
@@ -93,7 +95,8 @@
       otherList: [{
         icon: '../static/imgs/mzsm.png',
         title: '常见问题',
-        subTitle: ''
+        subTitle: '',
+        hideLine: true
       }, {
         icon: '../static/imgs/mzsm.png',
         title: '问题及反馈',
@@ -177,10 +180,6 @@
       position: absolute;
       border: none;
       right: 30rpx;
-    }
-
-    .menu {
-
     }
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <view class="panel {{paddingClass}}">
+  <view class="panel {{paddingClass}} {{marginClass}}">
     <view class="topline" wx:if="{{topLine}}"></view>
     <view class="placeContent"></view>
     <slot name="title">
@@ -16,6 +16,10 @@
   export default class Panel extends wepy.component {
     props = {
       padding: {
+        type: String,
+        default: ''
+      },
+      margin: {
         type: String,
         default: ''
       },
@@ -46,6 +50,12 @@
         }
         return ''
       },
+      marginClass() {
+        if (this.margin.includes('top')) {
+          return 'marginTop'
+        }
+        return ''
+      },
       topLine() {
         return this.lines.includes('top')
       },
@@ -68,7 +78,7 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background-color: transparent;
+    background-color: white;
 
     .topline {
       width: 100%;
@@ -78,6 +88,7 @@
       position: absolute;
       top:0;
       left:0;
+      z-index: 2;
     }
 
     .bottomline {
@@ -88,6 +99,7 @@
       position: absolute;
       bottom:1rpx;
       left:0;
+      z-index: 2;
     }
 
     .title {
@@ -121,5 +133,9 @@
   .smallPadding {
     padding-top: 30rpx;
     padding-bottom: 30rpx;
+  }
+
+  .marginTop {
+    margin-top: 30rpx;
   }
 </style>

@@ -1,7 +1,7 @@
 <template>
-  <view class="item">
-    <image src="{{ imgSrc }}" model="aspectFit"></image>
-    <label for="{{ title }}">{{title}}</label>
+  <view class="item" @tap="menutap">
+    <image src="{{ menu.imgSrc }}" model="aspectFit"></image>
+    <label>{{menu.title}}</label>
   </view>
 </template>
 
@@ -10,11 +10,21 @@ import wepy from 'wepy'
 
 export default class MenuItem extends wepy.component {
   props = {
-    imgSrc: String,
-    title: String
+    menu: {
+      imgSrc: String,
+      title: String,
+      content: String
+    }
   }
 
   data = {
+  }
+
+  methods = {
+    menutap() {
+      console.log('出发了')
+      this.$emit('tapmenu', this.menu)
+    }
   }
 
   onLoad() {

@@ -66,7 +66,8 @@
       },
       inPage: true,
       musics: [],
-      isloading: true
+      isloading: true,
+      album_id: null
     }
 
     methods = {
@@ -104,6 +105,41 @@
 
           }
         })
+      },
+      // 获取数据
+      getData: ({minId, maxId, isHeader = true}) => {
+        const data = {
+          album_id: this.album_id
+        }
+        if (isHeader && minId) {
+          data.minId = minId
+        } else if (!isHeader && maxId) {
+          data.maxId = maxId
+        }
+
+        Request.request({
+          url: '/music/mini/list',
+          method: 'GET',
+          data: data,
+          success: ({data}) => {
+            if (data.code === 20000) {
+              for (let music of data.data.items) {
+                this.musics.push(music)
+              }
+            }
+          },
+          fail: () => {
+
+          },
+          complete: () => {
+            if (isHeader) {
+              this.$invoke('csscrollview', 'header_endRefresh')
+            } else {
+              this.$invoke('csscrollview', 'footer_endRefresh')
+            }
+            this.$apply()
+          }
+        })
       }
     }
 
@@ -120,6 +156,18 @@
         }
         MusicTool.resetMusic(music)
         MusicTool.playMusic()
+      },
+      headerRefreshHandler: () => {
+        this.methods.getData({
+          minId: this.musics.length > 0 ? this.musics[0].num : -1,
+          isHeader: true
+        })
+      },
+      footerRefreshHandler: () => {
+        this.methods.getData({
+          maxId: this.musics.length > 0 ? this.musics[this.musics.length - 1].num : -1,
+          isHeader: false
+        })
       }
     }
 
@@ -128,6 +176,7 @@
       this.isloading = true
       // 获取到ID 发起请求
       if (option && option.id) {
+        this.album_id = option.id
         Request.request({
           url: '/album/mini/' + option.id,
           method: 'GET',
@@ -149,36 +198,13 @@
             })
           }
         })
-
-        Request.request({
-          url: '/music/mini/list',
-          method: 'GET',
-          data: {
-            album_id: option.id
-          },
-          success: ({data}) => {
-            if (data.code === 20000) {
-              for (let music of data.data.items) {
-                this.musics.push(music)
-              }
-            }
-          },
-          fail: () => {
-
-          },
-          complete: () => {
-            CsLoading.hideLoading({
-              success: () => {
-              }
-            })
-          }
-        })
       } else {
         wepy.navigateBack()
       }
     }
 
     onShow() {
+      this.$invoke('csscrollview', 'header_beginRefresh')
     }
     onHide() {
     }
@@ -200,7 +226,7 @@
     left: 0rpx;
     right: 0rpx;
     top: 380rpx;
-    bottom:20rpx;
+    bottom:0rpx;
     border-radius: 3px;
     box-sizing: border-box;
     display: flex;

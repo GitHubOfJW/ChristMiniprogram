@@ -6,7 +6,7 @@
     <panel1 lines="bottom"  wx:if="{{!isloading}}">
       <view class="header">
       <repeat for="{{menus}}" key="index" index="index" item="menu">
-        <menuitem :imgSrc="menu.imgSrc" :title="menu.title"></menuitem>
+        <menuitem :menu.sync="menu"></menuitem>
       </repeat>
       </view>
     </panel1>
@@ -64,30 +64,12 @@
       toast: Toast
     }
 
-    events = {
-    }
-
     data = {
       timerId: null,
       prayersTxt: '我们在天上的父,愿人都尊你的名为圣。愿你的国降临；愿你的旨意行在地上，如同行在天上。我们日用的饮食，今日赐给我们。免我们的债，如同我们免了人的债。不叫我们遇见试探；救我们脱离凶恶。因为国度、权柄、荣耀，全是你的，直到永远。阿们。',
-      menus: [{
-        imgSrc: '../static/imgs/mzsm.png',
-        title: '扫码分享'
-      }, {
-        imgSrc: '../static/imgs/mzsm.png',
-        title: '打赏声明'
-      }, {
-        imgSrc: '../static/imgs/mzsm.png',
-        title: '免责声明'
-      }],
+      menus: null,
       isloading: true, // 进入页面默认一片空白
       albums: [] // 专辑
-    }
-
-    computed = {
-      now () {
-        return +new Date()
-      }
     }
 
     methods = {
@@ -102,6 +84,17 @@
     }
 
     events = {
+      tapmenu (menu) {
+        console.log(menu)
+        // 扫码分享
+        if (menu.type === 0) {
+
+        } else if (menu.type === 1) { // 打赏声明
+
+        } else if (menu.type === 2) { // 免责声明
+
+        }
+      }
     }
 
     onLoad() {
@@ -116,6 +109,7 @@
         success: ({data}) => {
           if (data.code === 20000) {
             this.albums = data.data.albums.rows
+            this.menus = data.data.menus
           }
         },
         fail: () => {
