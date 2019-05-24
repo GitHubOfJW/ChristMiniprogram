@@ -1,6 +1,6 @@
 <template>
   <!-- 专辑详情 -->
-  <view class="detail">
+  <view class="detail" @tap="tapdetail">
     <image src="{{album.big_url}}" model="aspectFill" ></image>
     <view class="info">
       <label class="name">{{album.name}}</label>
@@ -30,7 +30,9 @@ export default class AlbumDetail extends wepy.component {
   }
 
   methods = {
-
+    tapdetail: () => {
+      this.$emit('tapdetail')
+    }
   }
 
   computed = {

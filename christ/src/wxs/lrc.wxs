@@ -1,0 +1,10 @@
+module.exports = {
+  filter: function (num) {
+    var t = num // this.time
+    var minite = parseInt(t / 60000) // 分钟
+    var second = parseInt(t / 1000) // 秒
+    var msecond = parseInt(t % 1000)
+    console.log(t, minite, second, msecond)
+    return minite + ':' + second + ':' + msecond
+  }
+}

@@ -1,0 +1,250 @@
+<template>
+  <view class="browser">
+    <scroll-view class="content" scroll-y>
+      <view class="lrcs">
+      <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
+        <lrcitem :edit.sync="edit" :timeStr.sync="lrc.timeStr" :text.sync="lrc.text"></lrcitem>
+      </repeat>
+      </view>
+    </scroll-view>
+    <!-- 控制 -->
+    <view class="control">
+      <slider block-size="15" min="0" max="100"></slider>
+      <view class="time">
+        <label>00:00:00</label>
+        <label>00:00:00</label>
+      </view>
+      <view class="tool">
+        <image wx:if="{{ singlePlayer }}" @tap="playHandler" src="../static/imgs/singlecycle.png" model="aspectFill"  />
+        <image wx:if="{{ !singlePlayer }}" @tap="playHandler" src="../static/imgs/listcycle.png" model="aspectFill"  />
+        <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
+        <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
+      </view>
+    </view>
+  </view>
+</template>
+<script>
+import wepy from 'wepy'
+import LrcItem from '@/components/lrcitem'
+import Request from '@/utils/request'
+import { connect } from 'wepy-redux'
+import MusicTool from '@/utils/MusicTool'
+import { favoriteMusic } from '@/store/actions/musicPlayer'
+@connect({
+  hasMusic(state) {
+    return state.musicPlayer.music_id > 0
+  },
+  name(state) {
+    return state.musicPlayer.music_name
+  },
+  paused(state) {
+    return !state.musicPlayer.isPlaying
+  },
+  singlePlayer(state) {
+    return state.musicPlayer.playType === 1
+  },
+  favorite(state) {
+    return state.musicPlayer.favorite
+  }
+})
+
+export default class Music extends wepy.page {
+  config = {
+    navigationBarTitleText: '歌词'
+  }
+
+  components = {
+    lrcitem: LrcItem
+  }
+
+  data = {
+    lrcs: [],
+    id: null,
+    edit: true
+  }
+
+  methods = {
+    getLrc: () => {
+      // 获取到歌词的id
+      const id = wepy.$store.getState().musicPlayer.music_id
+      this.id = id
+      Request.request({
+        url: '/music/mini/' + id,
+        method: 'GET',
+        success: ({data}) => {
+          if (data.code === 20000) {
+            if (!data.data.has_lrc) {
+              this.lrcs.push({
+                time: 1000,
+                timeStr: '[0:1:0]',
+                text: '暂无歌词'
+              })
+              this.lrcs.push({
+                time: this.methods.trans('[100:6:0]'),
+                timeStr: '[0:6:0]',
+                text: '点击歌曲按钮查看歌谱'
+              })
+              return
+            }
+            const lrcs = data.data.lrc.split('\n')
+            this.lrcs.splice(0, this.lrcs.length)
+            this.edit = data.data.lrc_edit
+            for (let lrc of lrcs) {
+              const lrcItems = lrc.split(']')
+              this.lrcs.push({
+                time: this.methods.trans(lrcItems[0]),
+                timeStr: lrcItems[0] + ']',
+                text: lrcItems[1]
+              })
+            }
+            this.$apply()
+          }
+        },
+        fail: () => {
+
+        },
+        complete: () => {
+
+        }
+      })
+    },
+    refreshTime: () => {
+      for (let item of this.lrcs) {
+        item.timeStr = this.methods.filter(item.time)
+      }
+      this.$apply()
+    },
+    filter: (num) => {
+      const t = num // this.time
+      const minite = parseInt(t / 60000) // 分钟
+      const second = parseInt(t / 1000) // 秒
+      const msecond = parseInt(t % 1000)
+      return '[' + minite + ':' + second + ':' + msecond + ']'
+    },
+    trans: (str) => {
+      const times = str.replace('[', '').replace(']', '').split(':')
+      let time = 0
+      time += parseInt(times[0]) * 60000
+      time += parseInt(times[1]) * 1000
+      time += parseInt(times[2])
+      return time
+    },
+    playHandler() {
+      MusicTool.playMusic()
+      this.$apply()
+    },
+    pauseHandler() {
+      MusicTool.pauseMusic()
+      this.$apply()
+    },
+    supportHandler() {
+      if (this.inPage) {
+        this.$emit('favorite', {
+          music_id: wepy.$store.getState().musicPlayer.music_id,
+          favorite: true
+        })
+        return
+      }
+      favoriteMusic(true)
+    },
+    unsupportHandler() {
+      if (this.inPage) {
+        this.$emit('favorite', {
+          music_id: wepy.$store.getState().musicPlayer.music_id,
+          favorite: false
+        })
+        return
+      }
+      favoriteMusic(false)
+    }
+  }
+
+  onLoad() {
+    this.methods.refreshTime()
+    this.methods.getLrc()
+    MusicTool.addMusicListener({
+      type: 'timeUpdate',
+      fn: (args) => {
+        console.log('进度更新', args)
+      }
+    })
+    // const ctx = wepy.$store.getState().musicPlayer.musicInstance
+    // const ctx = wepy.createInnerAudioContext()
+    // ctx.src = 'http://192.168.2.106:3000/upload/2019050423/3befcccf-5262-479f-820d-b5979b656077.mp3'
+    // ctx.autoplay = true
+    // ctx.onTimeUpdate(function() {
+    //   console.log('这个就能更新')
+    // })
+  }
+
+  unLoad() {
+    MusicTool.removeMusicListener({
+      type: 'timeUpdate'
+    })
+  }
+}
+</script>
+
+<style lang="less" scoped>
+  .browser {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    
+    .content {
+      position: absolute;
+      top: 50rpx;
+      bottom: 270rpx;
+      left :0;
+      right:0;
+      .lrcs {
+        padding-top: 10%;
+        padding-bottom: 10%;
+        width: 100%;
+      }
+    }
+    .control {
+      width: 100%;
+      height: 250rpx;
+      position: absolute;
+      bottom: 0rpx;
+      left: 0rpx;
+      right: 0rpx;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+
+      slider {
+        width: 650rpx;
+        padding-left: 12rpx;
+      }
+
+      .time {
+         width: 650rpx;
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         label {
+           font-size: 28rpx;
+         }
+      }
+
+      .tool {
+        width:  650rpx;
+        margin-top: 25rpx;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        image {
+          width: 60rpx;
+          height: 60rpx;
+        }
+      }
+    }
+  }
+</style>

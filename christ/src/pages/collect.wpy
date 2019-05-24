@@ -1,33 +1,24 @@
 <template>
   <view class="container {{ hasMusic ? 'is_play' : '' }}">
     <cusaudio :inPage.sync="inPage"></cusaudio>
-
-    <!-- 专辑 -->
-    <panel1 wx:if="{{!isloading}}">
-      <albumdetail :album.sync = "albumData"></albumdetail>
-    </panel1>
-
-    <csscrollview wx:if="{{!isloading}}" class="list {{ hasMusic ? 'list_play' : ''}}">
+    <csscrollview wx:if="{{!isloading}}" enableTop="{{false}}" class="list {{ hasMusic ? 'list_play' : ''}}">
       <repeat for="{{musics}}" key="index" index="index" item="music">
-        <musicitem :music.sync="music"></musicitem>
+        <favoriteItem :music.sync="music"></favoriteItem>
       </repeat>
     </csscrollview>
+
     <toast />
     <csloading />
-    <choosemusic :value.sync="chooseNum" :dialog.sync="chooseMusic" :count.sync="albumCount" />
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
   import { connect } from 'wepy-redux'
-  import AlbumDetail from '@/components/albumdetail'
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
-  import MusicItem from '@/components/musicItem'
+  import FavoriteItem from '@/components/favoriteItem'
   import CustomLoading from '@/components/customize/csLoading'
-  import ChooseMusic from '@/components/customize/chooseMusic'
-  import CsLoading from '@/utils/CsLoading'
   import CsScrollView from '@/components/customize/csScrollView'
   import Toast from 'wepy-com-toast'
   import MusicTool from '@/utils/MusicTool'
@@ -40,9 +31,9 @@
     }
   })
   
-  export default class Album extends wepy.page {
+  export default class Collect extends wepy.page {
     config = {
-      navigationBarTitleText: '专辑',
+      navigationBarTitleText: '收藏',
       disableScroll: true
     }
 
@@ -51,28 +42,17 @@
       panel1: Panel,
       panel2: Panel,
       cusaudio: CusAudio,
-      albumdetail: AlbumDetail,
       csloading: CustomLoading,
       csscrollview: CsScrollView,
-      musicitem: MusicItem,
-      choosemusic: ChooseMusic,
+      favoriteItem: FavoriteItem,
       toast: Toast
     }
 
     data = {
-      albumData: {
-        big_url: '../static/imgs/placeholder.jpg',
-        name: '专辑的名称',
-        descr: '专辑的描述',
-        music_count: 0
-      },
       inPage: true,
       musics: [],
-      isloading: true,
-      album_id: null,
-      chooseMusic: false,
-      chooseNum: 1,
-      albumCount: 0
+      isloading: false,
+      page: 1
     }
 
     methods = {
@@ -112,41 +92,20 @@
         })
       },
       // 获取数据
-      getData: ({minId, maxId, isHeader = true, clear = false}) => {
+      getData: () => {
         const data = {
-          album_id: this.album_id
-        }
-        if (isHeader && minId) {
-          data.minId = minId
-        } else if (!isHeader && maxId) {
-          data.maxId = maxId
+          page: this.page
         }
 
         Request.request({
-          url: '/music/mini/list',
+          url: '/music/mini/favorites',
           method: 'GET',
           data: data,
           success: ({data}) => {
             if (data.code === 20000) {
-              if (isHeader) {
-                this.$invoke('csscrollview', 'header_endRefresh', {noData: data.data.total <= 0})
-              } else {
-                this.$invoke('csscrollview', 'footer_endRefresh', {noData: data.data.total <= 0})
-              }
-              if (clear) {
-                this.musics.splice(0, this.musics.length)
-              }
-              for (let i = 0; i < data.data.items.length; i++) {
-                if (isHeader) {
-                  const music = data.data.items[data.data.items.length - 1 - i]
-                  this.musics.unshift(music)
-                } else {
-                  const music = data.data.items[i]
-                  if (clear && music.num === maxId + 1) {
-                    this.events.choose_music(music)
-                  }
-                  this.musics.push(music)
-                }
+              this.$invoke('csscrollview', 'footer_endRefresh', {noData: data.data.total <= 0})
+              for (let music of data.data.items) {
+                this.musics.push(music)
               }
             }
           },
@@ -154,11 +113,7 @@
 
           },
           complete: () => {
-            if (isHeader) {
-              this.$invoke('csscrollview', 'header_endRefresh')
-            } else {
-              this.$invoke('csscrollview', 'footer_endRefresh')
-            }
+            this.$invoke('csscrollview', 'footer_endRefresh')
             this.$apply()
           }
         })
@@ -169,12 +124,6 @@
     }
 
     events = {
-      closeChoose: () => {
-        this.chooseMusic = false
-      },
-      tapdetail: () => {
-        this.chooseMusic = true
-      },
       favorite: ({music_id, favorite}) => {
         this.methods.music_favorite(music_id, favorite)
       },
@@ -196,50 +145,11 @@
           maxId: this.musics.length > 0 ? this.musics[this.musics.length - 1].num : -1,
           isHeader: false
         })
-      },
-      chooseMusic: (value) => {
-        this.chooseMusic = false
-        this.chooseNum = value
-        this.methods.getData({
-          maxId: value - 1,
-          isHeader: false,
-          clear: true
-        })
-        this.$apply()
       }
     }
 
-    onLoad(option) {
-      CsLoading.showLoading()
-      this.isloading = true
-      // 获取到ID 发起请求
-      if (option && option.id) {
-        this.album_id = option.id
-        Request.request({
-          url: '/album/mini/' + option.id,
-          method: 'GET',
-          success: ({data}) => {
-            if (data.code === 20000) {
-              this.albumData.big_url = '../static/imgs/loading.svg'
-              this.albumData = data.data
-              this.albumCount = data.data.music_count
-            }
-          },
-          fail: () => {
+    onLoad() {
 
-          },
-          complete: () => {
-            CsLoading.hideLoading({
-              success: () => {
-                this.isloading = false
-                this.$apply()
-              }
-            })
-          }
-        })
-      } else {
-        wepy.navigateBack()
-      }
     }
 
     onShow() {
@@ -264,7 +174,7 @@
     // width: 750rpx;
     left: 0rpx;
     right: 0rpx;
-    top: 380rpx;
+    top: 0rpx;
     bottom:0rpx;
     border-radius: 3px;
     box-sizing: border-box;
@@ -276,6 +186,6 @@
   }
 
   .list_play {
-    top: 480rpx;
+    top: 100rpx;
   }
 </style>

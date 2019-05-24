@@ -1,0 +1,101 @@
+<template>
+  <view class="choose" wx:if="{{dialog}}">
+    <view class="content">
+      <button class="close" type="default" plain bindtap="close" size="mini">关闭</button>
+      <label> 第 {{num}} 首</label>
+      <slider block-size="18" bindchanging="changing" bindchange="change" value="{{value}}" min="1" max="{{count}}"></slider>
+      <button type="primary" bindtap="confirm" size="mini">确定</button>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class ChooseMusic extends wepy.component {
+  props = {
+    count: {
+      type: Number,
+      default: 1
+    },
+    dialog: {
+      type: Boolean,
+      default: false
+    },
+    value: {
+      type: Number,
+      default: 1
+    }
+  }
+
+  data = {
+    num: 1
+  }
+
+  components = {
+  }
+
+  methods = {
+    change(e) {
+      this.num = e.detail.value
+    },
+    changing(e) {
+      this.num = e.detail.value
+    },
+    confirm() {
+      this.$emit('chooseMusic', this.num)
+    },
+    close() {
+      this.$emit('closeChoose')
+    }
+  }
+}
+</script>
+<style lang="less" scpoed>
+  .choose {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top:0;
+    left:0;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+
+    
+    .content {
+      width: 600rpx;
+      padding-top:20rpx;
+      padding-bottom:20rpx;
+      background-color:white;
+      height: 350rpx;
+      border-radius: 10px;
+      transform: translateY(-40%);
+      box-shadow: 5px 5px 10px #aaa , -5px 5px 10px #aaa , 5px -5px 10px #aaa ,-5px -5px 10px #aaa;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      align-items: center;
+
+      .close {
+        position: absolute;
+        right: 20rpx;
+        top: 20rpx;
+        border: none;
+      }
+
+      label {
+        width:80%;
+        height: 100rpx;
+        line-height: 100rpx;
+        text-align: center;
+        font-size: 32rpx;
+      }
+
+      slider {
+        width: 80%;
+      }
+    }
+  }
+</style>

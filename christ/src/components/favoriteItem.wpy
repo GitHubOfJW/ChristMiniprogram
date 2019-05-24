@@ -1,19 +1,15 @@
 <template>
-  <view class="music {{ music_id === music.id ? 'checked' : '' }}">
+  <view class="music {{ music_id === music.id ? 'checked' : '' }}" @tap="clickMusic">
     <view class="numb">
     <image wx:if="{{ music_id === music.id }}" src="../static/imgs/current.svg" model="aspectFill" /> 
-    <label wx:if="{{ music_id !== music.id }}">{{music.num}} .</label>
+    <image wx:if="{{ music_id !== music.id }}" src="{{music.album.big_url}}" model="aspectFill" />
     </view>
-    <view class="info" @tap="clickMusic">
+    <view class="info">
       <label>{{music.name}}</label>
     </view>
     <view class="action">
-        <image wx:if="{{  infoScope && music.favorite && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />
-        <image wx:if="{{ infoScope && (!music.favorite || music.favorite.is_delete) }}" @tap.stop="supportHandler" src="../static/imgs/support.png" model="aspectFit" />
-        <button wx:if="{{!infoScope}}" plain size="mini" open-type="getUserInfo"  bindgetuserinfo="bindGetUserInfo">
-          <image wx:if="{{ music.favorite && !music.favorite.is_delete }}" src="../static/imgs/unsupport.png" model="aspectFit" />
-          <image wx:if="{{ !music.favorite || music.favorite.is_delete }}" src="../static/imgs/support.png" model="aspectFit" />
-        </button>
+      <image wx:if="{{ music.favorite && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />
+      <image wx:if="{{ !music.favorite || music.favorite.is_delete }}" @tap.stop="supportHandler" src="../static/imgs/support.png" model="aspectFit" />
     </view>
   </view>
 </template>
@@ -34,7 +30,7 @@ import { connect } from 'wepy-redux'
   }
 })
 
-export default class MusicItem extends wepy.component {
+export default class FavoriteItem extends wepy.component {
   props = {
     music: {
       type: Object,
@@ -45,11 +41,7 @@ export default class MusicItem extends wepy.component {
   }
 
   data = {
-    infoScope: false
-  }
 
-  onLoad() {
-    this.infoScope = this.$parent.$parent.globalData.infoScope
   }
 
   methods = {
@@ -67,14 +59,6 @@ export default class MusicItem extends wepy.component {
         music_id: this.music.id,
         favorite: true
       })
-    },
-    bindGetUserInfo(e) {
-      if (!e.detail.userInfo) {
-        return
-      }
-      this.infoScope = true
-      this.$parent.$parent.globalData.userInfo = e.detail.userInfo
-      this.$parent.$parent.globalData.infoScope = true
     }
   }
 
@@ -136,20 +120,11 @@ export default class MusicItem extends wepy.component {
     .action {
       width:80rpx;
       display: flex;
-      position: relative;
       justify-content: center;
       align-items: center;
       image {
         width:45rpx;
         height:45rpx;
-      }
-
-      button {
-        width:45rpx;
-        height:45rpx;
-        padding: 0rpx;
-        border: none;
-        background-color: transparent;
       }
     }
 

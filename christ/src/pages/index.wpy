@@ -39,7 +39,7 @@
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
   import CustomLoading from '@/components/customize/csLoading'
-  import CsLoading from '@/utils/CsLoading'
+  // import CsLoading from '@/utils/CsLoading'
   import Toast from 'wepy-com-toast'
   import Request from '@/utils/request'
 
@@ -51,7 +51,8 @@
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: '基督随身听'
+      navigationBarTitleText: '基督随身听',
+      enablePullDownRefresh: true
     }
     components = {
       menuitem: MenuItem,
@@ -97,9 +98,13 @@
       }
     }
 
-    onLoad() {
+    onReady() {
+      wepy.startPullDownRefresh()
+    }
+
+    onPullDownRefresh() {
       // 在这展示loading
-      CsLoading.showLoading()
+      // CsLoading.showLoading()
       this.isloading = true
       // 发送请求获取首页
       Request.request({
@@ -116,30 +121,15 @@
 
         },
         complete: () => {
-          CsLoading.hideLoading({
-            success: () => {
-              this.isloading = false
-            }
-          })
+          wepy.stopPullDownRefresh()
+          this.isloading = false
+          this.$apply()
         }
       })
     }
 
-    onShow() {
-      const timeoutId = setTimeout(() => {
-        this.timerId = setInterval(() => {
-          this.prayersTxt = this.prayersTxt.substring(1) + this.prayersTxt.substring(0, 1)
-          this.$apply()
-        }, 500)
-        clearTimeout(timeoutId)
-        console.log('开始定时器')
-      }, 1000)
-    }
-
     onHide() {
-      clearInterval(this.timerId)
 
-      console.log('停止定时器')
     }
   }
 </script>

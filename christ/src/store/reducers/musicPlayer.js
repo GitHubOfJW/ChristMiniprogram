@@ -15,12 +15,25 @@ export default handleActions({
         // 停止 销毁
         state.musicInstance.stop()
         state.musicInstance.destroy()
+        state.musicInstance = null
       }
     }
     // 设置
     const instance = wepy.createInnerAudioContext()
     instance.src = action.payload.source_url
-
+    instance.autoplay = true
+    instance.onPlay(function() {
+      console.log('kaishi')
+    })
+    instance.onTimeUpdate(function() {
+      console.log('gengxin')
+    })
+    instance.onError(function(e) {
+      console.log('error', e)
+    })
+    instance.onCanplay(function(e) {
+      console.log('keyibofang')
+    })
     // 改变状态
     return {
       ...state,
@@ -79,6 +92,9 @@ export default handleActions({
       if (type === 'ended') {
         state.events[type] = fn
         state.musicInstance.onEnded(fn)
+      } else if (type === 'timeUpdate') {
+        state.events[type] = fn
+        state.musicInstance.onTimeUpdate(fn)
       }
     }
     return state
@@ -89,6 +105,9 @@ export default handleActions({
       if (type === 'ended' && state.events[type]) {
         state.musicInstance.offEnded(state.events[type])
         delete state.events[type]
+      } else if (type === 'timeUpdate') {
+        state.musicInstance.offTimeUpdate(state.events[type])
+        delete state.events[type]
       }
     }
     return state
@@ -98,5 +117,6 @@ export default handleActions({
   music_id: 0,
   musicInstance: null,
   favorite: false,
+  playType: 2, // 1 单曲循环 2 列表循环
   events: {}
 })

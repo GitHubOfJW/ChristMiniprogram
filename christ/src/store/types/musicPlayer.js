@@ -21,3 +21,6 @@ export const OFF_EVENT = 'OFF_EVENT'
 
 // 收藏 取消收藏
 export const FAVORITE_MUSIC = 'FAVORITE_MUSIC'
+
+// 切换播放模式
+export const PLAY_TYPE = 'PLAY_TYPE'

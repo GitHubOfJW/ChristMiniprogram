@@ -1,0 +1,70 @@
+<template>
+  <view class="lrc">
+    <label class="time {{ !edit ? 'hide':''}}">{{ timeStr }}</label>
+    <label class="text">{{ text }}</label>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class LrcItem extends wepy.component {
+  props = {
+    edit: {
+      type: Boolean,
+      default: false
+    },
+    timeStr: {
+      type: String,
+      default: ''
+    }, // 毫秒
+    text: {
+      type: String,
+      default: '' // 内容
+    }
+  }
+
+  methods = {
+  }
+
+  computed = {
+
+  }
+}
+</script>
+
+<style lang="less" scoped>
+  .lrc {
+    width: 750rpx;
+    height: 60rpx;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .time {
+      font-size:30rpx;
+      width: 50px;
+      height: 60rpx;
+      line-height:  60rpx;
+      color:red;
+      text-align: left;
+      padding-left: 10px;
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .text {
+      font-size:32rpx;
+      height: 60rpx;
+      line-height: 60rpx;
+      width: 750rpx;
+      box-sizing: border-box;
+      text-align: center;
+      color:#888;
+    }
+
+    .checked {
+      color: red;
+    }
+  }
+</style>

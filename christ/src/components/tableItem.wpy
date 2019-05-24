@@ -1,5 +1,5 @@
 <template>
-  <view class="item">
+  <view class="item" @tap="tapItem">
     <view class="line" wx:if="{{!menu.hideLine}}"></view>
     <image src="{{ menu.icon }}" model="AspectFit"></image>
     <label class="title">{{ menu.title }}</label>
@@ -21,6 +21,12 @@ export default class TableItem extends wepy.component {
         subTitle: '自标题',
         hideLine: false
       }
+    }
+  }
+
+  methods = {
+    tapItem() {
+      this.$emit('itemclick', this.menu)
     }
   }
 

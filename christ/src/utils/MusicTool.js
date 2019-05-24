@@ -8,6 +8,34 @@ export default class MusicTool {
     nextMusic(id)
   }
 
+  // 添加事件
+  static addMusicListener({type, fn}) {
+    // 先移除
+    this.removeMusicListener({type: type})
+    // 再添加
+    if (fn && typeof fn === 'function') {
+      wepy.$store.dispatch({
+        type: ON_EVENT,
+        payload: {
+          type: type,
+          fn: fn
+        }
+      })
+    }
+  }
+
+  static removeMusicListener({type, fn}) {
+    if (fn && typeof fn === 'function') {
+      wepy.$store.dispatch({
+        type: OFF_EVENT,
+        payload: {
+          type: type,
+          fn: fn
+        }
+      })
+    }
+  }
+
   // 重置音乐
   static resetMusic ({ id = 0, source_url, name, favorite }) {
     wepy.$store.dispatch({

@@ -26,7 +26,10 @@ export default class extends wepy.app {
     pages: [
       'pages/index',
       'pages/profile',
-      'pages/album'
+      'pages/album',
+      'pages/music',
+      'pages/collect',
+      'pages/question'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -36,7 +39,7 @@ export default class extends wepy.app {
       backgroundColor: '#fbfbff'
     },
     tabBar: {
-      backgroundColor: '#fbfbff',
+      // backgroundColor: '#fbfbff',
       list: [
         {
           iconPath: './static/imgs/home.png',
@@ -55,7 +58,8 @@ export default class extends wepy.app {
   }
 
   globalData = {
-    userInfo: null
+    userInfo: null,
+    infoScope: false
   }
 
   constructor () {
@@ -66,12 +70,28 @@ export default class extends wepy.app {
   onLaunch() {
     // 账户登录
     AccountTool.login()
+
+    // 获取用户信息
+    wepy.getSetting({
+      success: (res) => {
+        if (res.authSetting['scope.userInfo']) {
+          this.globalData.infoScope = true
+          // 获取信息
+          this.getUserInfo()
+        }
+      }
+    })
+
+    // 打开调试
+    wepy.setEnableDebug({
+      enableDebug: true
+    })
   }
 
   getUserInfo(cb) {
     const that = this
     if (this.globalData.userInfo) {
-      return this.globalData.userInfo
+      cb && cb(this.globalData.userInfo)
     }
     wepy.getUserInfo({
       success (res) {

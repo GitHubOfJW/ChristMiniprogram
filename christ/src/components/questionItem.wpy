@@ -1,0 +1,46 @@
+<template>
+  <view class="questions">
+    <label class="question"> {{ question.question}} </label>
+    <label class="answer"> {{ question.answer}} </label>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy'
+export default class QuestionItem extends wepy.component {
+  props = {
+    question: {
+      type: Object,
+      default: {
+        question: '问题',
+        answer: '答案'
+      }
+    }
+  }
+}
+</script>
+<style lang="less" scoped>
+  .questions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    margin-bottom: 20rpx;
+
+    .question {
+      font-size: 30rpx;
+      padding: 20rpx;
+      background-color: #fbfbfb;
+      box-sizing: border-box;
+    }
+
+    .answer {
+      font-size: 30rpx;
+      padding: 20rpx;
+      padding-left: 30rpx;
+      color: #555;
+      box-sizing: border-box;
+      background-color: #fbfbfb;
+    }
+  }
+</style>

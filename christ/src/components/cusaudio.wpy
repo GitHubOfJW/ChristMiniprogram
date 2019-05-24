@@ -5,7 +5,7 @@
         <image wx:if="{{ !paused }}" src="../static/imgs/music.svg" model="aspectFill" />
         <image wx:if="{{ paused }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
       </view>
-      <view class="name">
+      <view class="name" @tap="jumpDetail">
         <label>{{ name }}</label>
       </view>
       <view class="actions">
@@ -51,6 +51,11 @@ export default class CusAudio extends wepy.component {
   }
 
   methods = {
+    jumpDetail() {
+      wepy.navigateTo({
+        url: 'music'
+      })
+    },
     playHandler() {
       MusicTool.playMusic()
       this.$apply()
