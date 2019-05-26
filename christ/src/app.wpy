@@ -54,7 +54,8 @@ export default class extends wepy.app {
           text: '我的'
         }
       ]
-    }
+    },
+    requiredBackgroundModes: ['audio']
   }
 
   globalData = {
@@ -82,9 +83,9 @@ export default class extends wepy.app {
       }
     })
 
-    // 打开调试
-    wepy.setEnableDebug({
-      enableDebug: true
+    const bgaManager = wepy.getBackgroundAudioManager()
+    bgaManager.onError((e) => {
+      console.log(e, '音频管理器错误')
     })
   }
 

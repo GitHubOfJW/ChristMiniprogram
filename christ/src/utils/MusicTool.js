@@ -1,11 +1,31 @@
 import wepy from 'wepy'
-import { RESET_MUSIC, PLAY_MUSIC, STOP_MUSIC, PAUSE_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT } from '@/store/types/musicPlayer'
+import { RESET_MUSIC, PLAY_MUSIC, STOP_MUSIC, PAUSE_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT, PLAY_TYPE } from '@/store/types/musicPlayer'
 import { nextMusic } from '@/store/actions/musicPlayer'
 export default class MusicTool {
   // 播放结束
   static ended () {
     const id = wepy.$store.getState().musicPlayer.music_id
+    // 如果播放类型是单曲
+    // if (wepy.$store.getState().musicPlayer.playType === 1) {
+    //   const payload = wepy.$store.getState().musicPlayer.music_payload
+    //   MusicTool.resetMusic({
+    //     ...payload,
+    //     origin: true
+    //   })
+    //   MusicTool.playMusic()
+    //   return
+    // }
     nextMusic(id)
+  }
+
+  // 修改播放类型
+  static changePlayType(playType = 1) {
+    wepy.$store.dispatch({
+      type: PLAY_TYPE,
+      payload: {
+        playType: playType % 3
+      }
+    })
   }
 
   // 添加事件
@@ -37,7 +57,7 @@ export default class MusicTool {
   }
 
   // 重置音乐
-  static resetMusic ({ id = 0, source_url, name, favorite }) {
+  static resetMusic ({ id = 0, source_url, name, favorite, origin = false}) {
     wepy.$store.dispatch({
       type: OFF_EVENT,
       payload: {
@@ -53,7 +73,8 @@ export default class MusicTool {
         id: id,
         source_url: source_url,
         name: name,
-        favorite: !!favorite
+        favorite: !!favorite,
+        origin: origin
       }
     })
 

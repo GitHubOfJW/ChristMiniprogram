@@ -1,28 +1,30 @@
 <template>
   <view class="browser">
-    <scroll-view class="content" scroll-y>
+    <scroll-view class="content" scroll-y scroll-with-animation="{{true}}" scroll-into-view="{{scrollToId}}">
       <view class="lrcs">
-      <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
-        <lrcitem :edit.sync="edit" :timeStr.sync="lrc.timeStr" :text.sync="lrc.text"></lrcitem>
-      </repeat>
+        <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
+          <lrcitem id="{{'lrc' + index}}" :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
+        </repeat>
       </view>
+      <button class="save" wx:if="{{edit && has_lrc}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
     </scroll-view>
     <!-- 控制 -->
     <view class="control">
-      <slider block-size="15" min="0" max="100"></slider>
+      <slider block-size="15" value="{{current}}" bindchanging="changing" bindchange="change" min="0" max="{{duration}}"></slider>
       <view class="time">
-        <label>00:00:00</label>
-        <label>00:00:00</label>
+        <label>{{ currentTimeStr }}</label>
+        <label>{{ durationStr }}</label>
       </view>
       <view class="tool">
-        <image wx:if="{{ singlePlayer }}" @tap="playHandler" src="../static/imgs/singlecycle.png" model="aspectFill"  />
-        <image wx:if="{{ !singlePlayer }}" @tap="playHandler" src="../static/imgs/listcycle.png" model="aspectFill"  />
+        <image wx:if="{{ singlePlayer }}" @tap="typeHandler" src="../static/imgs/singlecycle.png" model="aspectFill"  />
+        <image wx:if="{{ !singlePlayer }}" @tap="typeHandler" src="../static/imgs/listcycle.png" model="aspectFill"  />
         <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
         <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
         <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
         <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
     </view>
+    <toast />
   </view>
 </template>
 <script>
@@ -32,6 +34,7 @@ import Request from '@/utils/request'
 import { connect } from 'wepy-redux'
 import MusicTool from '@/utils/MusicTool'
 import { favoriteMusic } from '@/store/actions/musicPlayer'
+import Toast from 'wepy-com-toast'
 @connect({
   hasMusic(state) {
     return state.musicPlayer.music_id > 0
@@ -56,47 +59,146 @@ export default class Music extends wepy.page {
   }
 
   components = {
-    lrcitem: LrcItem
+    lrcitem: LrcItem,
+    toast: Toast
   }
 
   data = {
     lrcs: [],
     id: null,
-    edit: true
+    edit: true,
+    has_lrc: false,
+    durationStr: '',
+    currentTimeStr: '',
+    current: 0,
+    duration: 0,
+    seekFlag: false,
+    scrollToId: null
+  }
+
+  events = {
+    settime: (index) => {
+      const bgaManager = wepy.getBackgroundAudioManager()
+      const time = Math.round(bgaManager.currentTime * 1000)
+      const lrc = this.lrcs[index]
+      this.lrcs.splice(index, 1, {
+        time: time,
+        timeStr: this.methods.filter(time, true),
+        text: lrc.text,
+        checked: lrc.checked
+      })
+      this.$apply()
+    }
   }
 
   methods = {
+    typeHandler: () => {
+      const playType = wepy.$store.getState().musicPlayer.playType
+      if (playType === 1) {
+        MusicTool.changePlayType(2)
+      } else {
+        MusicTool.changePlayType(1)
+      }
+    },
+    changing: (e) => {
+      this.seekFlag = true
+      const currentTime = e.detail.value
+      this.currentTimeStr = this.methods.filter(currentTime, false)
+      this.$apply()
+    },
+    change: (e) => {
+      const currentTime = e.detail.value / 1000
+      const bgaManager = wepy.getBackgroundAudioManager()
+      const time = Math.min(currentTime, bgaManager.duration)
+      bgaManager.seek(time)
+      this.seekFlag = false
+      this.$apply()
+    },
+    // 检测歌词滚动
+    checkScorllLrc: (time) => {
+      // 查找歌词
+      let clearIndex = 0
+      for (let i = this.lrcs.length - 1; i >= 0; i--) {
+        const lrc = this.lrcs[i]
+        lrc.checked = false
+        if (time >= lrc.time) {
+          lrc.checked = true
+          clearIndex = i
+          this.scrollToId = 'lrc' + i
+          break
+        }
+      }
+      // 清除checked
+      for (let i = 0; i < clearIndex; i++) {
+        const lrc = this.lrcs[i]
+        lrc.checked = false
+      }
+      this.$apply()
+    },
+    saveLrc: () => {
+      const lrcList = []
+      for (let item of this.lrcs) {
+        lrcList.push(item.timeStr + item.text)
+      }
+      // 保存歌词
+      Request.request({
+        url: '/music/mini/edit/' + this.id,
+        method: 'PUT',
+        data: {
+          lrc: lrcList.join('\n')
+        },
+        success: ({data}) => {
+          if (data.code === 20000) {
+            this.edit = data.data.lrc_edit
+            this.$apply()
+          } else {
+            // 如果保存有问题
+            wepy.showToast({
+              title: data.message,
+              icon: 'none'
+            })
+          }
+        }
+      })
+    },
     getLrc: () => {
       // 获取到歌词的id
       const id = wepy.$store.getState().musicPlayer.music_id
+      if (this.id && this.id === id) {
+        return
+      }
       this.id = id
       Request.request({
         url: '/music/mini/' + id,
         method: 'GET',
         success: ({data}) => {
           if (data.code === 20000) {
+            this.has_lrc = data.data.has_lrc
+            this.lrcs.splice(0, this.lrcs.length)
             if (!data.data.has_lrc) {
               this.lrcs.push({
                 time: 1000,
                 timeStr: '[0:1:0]',
-                text: '暂无歌词'
+                text: '暂无歌词',
+                checked: false
               })
               this.lrcs.push({
-                time: this.methods.trans('[100:6:0]'),
-                timeStr: '[0:6:0]',
-                text: '点击歌曲按钮查看歌谱'
+                time: this.methods.trans('[0:3:0]'),
+                timeStr: '[0:3:0]',
+                text: '点击歌曲按钮查看歌谱',
+                checked: false
               })
               return
             }
             const lrcs = data.data.lrc.split('\n')
-            this.lrcs.splice(0, this.lrcs.length)
             this.edit = data.data.lrc_edit
             for (let lrc of lrcs) {
               const lrcItems = lrc.split(']')
               this.lrcs.push({
                 time: this.methods.trans(lrcItems[0]),
                 timeStr: lrcItems[0] + ']',
-                text: lrcItems[1]
+                text: lrcItems[1],
+                checked: false
               })
             }
             this.$apply()
@@ -110,18 +212,18 @@ export default class Music extends wepy.page {
         }
       })
     },
-    refreshTime: () => {
-      for (let item of this.lrcs) {
-        item.timeStr = this.methods.filter(item.time)
-      }
-      this.$apply()
-    },
-    filter: (num) => {
+    filter: (num, hasRang = true) => {
       const t = num // this.time
-      const minite = parseInt(t / 60000) // 分钟
-      const second = parseInt(t / 1000) // 秒
-      const msecond = parseInt(t % 1000)
-      return '[' + minite + ':' + second + ':' + msecond + ']'
+      let minute = 0
+      let second = 0
+      let msecond = 0
+      minute = parseInt(t / 60000) // 分钟
+      second = parseInt(t % 60000 / 1000) // 秒
+      if (!hasRang) {
+        return ('0'.repeat(1 - parseInt(minute > 9 ? 1 : 0)) + minute) + ':' + ('0'.repeat(1 - parseInt(second > 9 ? 1 : 0)) + second)
+      }
+      msecond = parseInt(t % 1000)
+      return '[' + minute + ':' + second + ':' + msecond + ']'
     },
     trans: (str) => {
       const times = str.replace('[', '').replace(']', '').split(':')
@@ -162,21 +264,37 @@ export default class Music extends wepy.page {
   }
 
   onLoad() {
-    this.methods.refreshTime()
     this.methods.getLrc()
+    const bgaManager = wepy.getBackgroundAudioManager()
+    this.current = Math.round(bgaManager.currentTime * 1000)
+    this.methods.checkScorllLrc(this.current)
+    this.currentTimeStr = this.methods.filter(this.current, false)
+    this.duration = Math.round(bgaManager.duration * 1000)
+    this.durationStr = this.methods.filter(this.duration, false)
+
     MusicTool.addMusicListener({
       type: 'timeUpdate',
       fn: (args) => {
-        console.log('进度更新', args)
+        // 如果是选中时间
+        if (this.seekFlag) {
+          return
+        }
+        this.current = Math.round(bgaManager.currentTime * 1000)
+        this.methods.checkScorllLrc(this.current)
+        this.currentTimeStr = this.methods.filter(this.current, false)
+        if (bgaManager.duration <= 0) {
+          return
+        }
+        this.duration = Math.round(bgaManager.duration * 1000)
+        this.durationStr = this.methods.filter(this.duration, false)
+        this.$apply()
       }
     })
-    // const ctx = wepy.$store.getState().musicPlayer.musicInstance
-    // const ctx = wepy.createInnerAudioContext()
-    // ctx.src = 'http://192.168.2.106:3000/upload/2019050423/3befcccf-5262-479f-820d-b5979b656077.mp3'
-    // ctx.autoplay = true
-    // ctx.onTimeUpdate(function() {
-    //   console.log('这个就能更新')
-    // })
+
+    // 设置
+    bgaManager.onPlay(() => {
+      this.methods.getLrc()
+    })
   }
 
   unLoad() {
@@ -197,14 +315,21 @@ export default class Music extends wepy.page {
     
     .content {
       position: absolute;
-      top: 50rpx;
+      top: 0rpx;
       bottom: 270rpx;
       left :0;
       right:0;
+      background-color: #fbfbfb;
       .lrcs {
-        padding-top: 10%;
-        padding-bottom: 10%;
+        padding-top: 40%;
+        padding-bottom: 60%;
         width: 100%;
+      }
+      .save {
+        position: relative;
+        left:50%;
+        transform: translateX(-50%);
+        margin-bottom: 40rpx;
       }
     }
     .control {
@@ -221,7 +346,6 @@ export default class Music extends wepy.page {
 
       slider {
         width: 650rpx;
-        padding-left: 12rpx;
       }
 
       .time {

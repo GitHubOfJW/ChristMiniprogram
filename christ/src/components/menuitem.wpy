@@ -22,7 +22,6 @@ export default class MenuItem extends wepy.component {
 
   methods = {
     menutap() {
-      console.log('出发了')
       this.$emit('tapmenu', this.menu)
     }
   }

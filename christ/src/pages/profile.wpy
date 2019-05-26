@@ -89,7 +89,6 @@
 
     methods = {
       bindGetUserInfo(e) {
-        console.log(e)
         if (!e.detail.userInfo) {
           return
         }
@@ -119,12 +118,10 @@
     }
 
     onLoad(option) {
-      console.log(this.$parent)
       this.infoScope = this.$parent.globalData.infoScope
       // 查看是否授权
       if (this.infoScope) {
         this.$parent.getUserInfo((userInfo) => {
-          console.log('调用毁掉')
           this.userInfo = userInfo
           this.$apply()
         })

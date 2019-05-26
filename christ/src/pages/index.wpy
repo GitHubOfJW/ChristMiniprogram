@@ -21,7 +21,7 @@
 
     <!-- 专辑 -->
     <repeat for="{{albums}}" key="album.id" index="index" item="album">
-      <carditem @choose_album.user="chooseAlbum" class="card" :id_key="album.name" :image_url="album.big_url" wx:if="{{!isloading}}">
+      <carditem class="card" :id_key="album.name" :image_url="album.big_url" wx:if="{{!isloading}}">
         <label slot="title">{{album.name}}</label>
       </carditem>
     </repeat>
@@ -75,16 +75,16 @@
 
     methods = {
       paryersHandler () {
-      },
-      chooseAlbum({source}) {
-        const index = source.$index
-        wepy.navigateTo({
-          url: 'album?id=' + this.albums[index].id
-        })
       }
     }
 
     events = {
+      choose_album({source}) {
+        const index = source.$index
+        wepy.navigateTo({
+          url: 'album?id=' + this.albums[index].id
+        })
+      },
       tapmenu (menu) {
         console.log(menu)
         // 扫码分享

@@ -1,7 +1,7 @@
 <template>
-  <view class="lrc">
-    <label class="time {{ !edit ? 'hide':''}}">{{ timeStr }}</label>
-    <label class="text">{{ text }}</label>
+  <view class="lrc" @tap="settime">
+    <label class="time {{ !edit ? 'hide':''}}">{{ lrc.timeStr }}</label>
+    <label class="text {{lrc.checked && !edit ? 'checked' : ''}}">{{ lrc.text }}</label>
   </view>
 </template>
 
@@ -13,17 +13,26 @@ export default class LrcItem extends wepy.component {
       type: Boolean,
       default: false
     },
-    timeStr: {
-      type: String,
-      default: ''
-    }, // 毫秒
-    text: {
-      type: String,
-      default: '' // 内容
+    lrc: {
+      timeStr: '',
+      text: '',
+      checked: false,
+      time: 0
+    },
+    idx: {
+      type: Number,
+      default: 0
     }
   }
 
   methods = {
+    settime() {
+      // 如果不是编辑状态，时间不变
+      if (!this.edit) {
+        return
+      }
+      this.$emit('settime', this.idx)
+    }
   }
 
   computed = {

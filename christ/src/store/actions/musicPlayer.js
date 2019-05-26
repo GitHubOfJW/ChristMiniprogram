@@ -10,12 +10,16 @@ export const nextMusic = id => {
   Request.request({
     url: '/music/mini/next',
     data: {
-      music_id: id
+      music_id: id,
+      playType: wepy.$store.getState().musicPlayer.playType
     },
     mehtod: 'GET',
     success: ({ data }) => {
       if (data.code === 20000) {
-        MusicTool.resetMusic(data.data)
+        MusicTool.resetMusic({
+          ...(data.data),
+          origin: true
+        })
         MusicTool.playMusic()
       } else {
         MusicTool.stopMusic()
