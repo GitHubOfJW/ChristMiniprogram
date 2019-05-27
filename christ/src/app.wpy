@@ -13,9 +13,11 @@
 import wepy from 'wepy'
 import 'wepy-async-function'
 import AccountTool from '@/utils/AccountTool'
-
+import MusicTool from '@/utils/MusicTool'
+import Request from '@/utils/request'
 import { setStore } from 'wepy-redux'
 import configStore from './store'
+import { nextMusic, prevMusic } from '@/store/actions/musicPlayer'
 
 const store = configStore()
 setStore(store)
@@ -60,7 +62,8 @@ export default class extends wepy.app {
 
   globalData = {
     userInfo: null,
-    infoScope: false
+    infoScope: false,
+    edit_lrc: false
   }
 
   constructor () {
@@ -70,22 +73,56 @@ export default class extends wepy.app {
 
   onLaunch() {
     // 账户登录
-    AccountTool.login()
-
-    // 获取用户信息
-    wepy.getSetting({
-      success: (res) => {
-        if (res.authSetting['scope.userInfo']) {
-          this.globalData.infoScope = true
-          // 获取信息
-          this.getUserInfo()
+    AccountTool.login(() => {
+      // 获取用户信息
+      wepy.getSetting({
+        success: (res) => {
+          if (res.authSetting['scope.userInfo']) {
+            this.globalData.infoScope = true
+            // 获取信息
+            this.getUserInfo()
+          }
         }
-      }
+      })
     })
 
     const bgaManager = wepy.getBackgroundAudioManager()
     bgaManager.onError((e) => {
       console.log(e, '音频管理器错误')
+    })
+
+    // 音乐播放
+    bgaManager.onPlay(() => {
+      MusicTool.playMusic()
+    })
+
+    // 音乐暂停
+    bgaManager.onPause(() => {
+      MusicTool.pauseMusic()
+    })
+
+    // 下一曲
+    bgaManager.onNext(() => {
+      const id = wepy.$store.getState().musicPlayer.music_id
+      // 如果播放类型是单曲
+      nextMusic(id)
+    })
+
+    // 上一曲
+    bgaManager.onPrev(() => {
+      const id = wepy.$store.getState().musicPlayer.music_id
+      // 如果播放类型是单曲
+      prevMusic(id)
+    })
+
+    // 开始
+    wepy.onAudioInterruptionBegin(() => {
+      MusicTool.pauseMusic()
+    })
+
+    // 结束
+    wepy.onAudioInterruptionEnd(() => {
+      MusicTool.playMusic()
     })
   }
 
@@ -98,6 +135,21 @@ export default class extends wepy.app {
       success (res) {
         that.globalData.userInfo = res.userInfo
         cb && cb(res.userInfo)
+        const openid = AccountTool.getOpenid()
+        if (!openid) {
+          return
+        }
+        // 更新个人信息
+        Request.request({
+          url: '/user/mini/edit/' + openid,
+          method: 'PUT',
+          data: res.userInfo,
+          success: ({data}) => {
+            if (data.code === 20000) {
+              this.globalData.edit_lrc = data.data.edit_lrc
+            }
+          }
+        })
       }
     })
   }

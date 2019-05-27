@@ -7,7 +7,7 @@
         <image src="{{ userInfo ? userInfo.avatarUrl : avatar }}"></image>
         <label>{{ userInfo ? userInfo.nickName : '用户昵称' }}</label>
         <button
-          wx:if="{{canIUse && !infoScope}}"
+          wx:if="{{canIUse && !infoScope && !userInfo}}"
           open-type="getUserInfo" plain
           bindgetuserinfo="bindGetUserInfo"
         >
@@ -92,9 +92,11 @@
         if (!e.detail.userInfo) {
           return
         }
+        console.log(e.detail.userInfo)
         this.userInfo = e.detail.userInfo
         this.$parent.globalData.userInfo = e.detail.userInfo
         this.$parent.globalData.infoScope = true
+        this.$apply()
       },
       bindOpenSetting(e) {
       }

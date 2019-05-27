@@ -72,7 +72,7 @@ export default class ChooseMusic extends wepy.component {
       height: 350rpx;
       border-radius: 10px;
       transform: translateY(-40%);
-      box-shadow: 5px 5px 10px #aaa , -5px 5px 10px #aaa , 5px -5px 10px #aaa ,-5px -5px 10px #aaa;
+      box-shadow: 5px 5px 5px #aaa , -5px 5px 5px #aaa , 5px -5px 5px #aaa ,-5px -5px 5px #aaa;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
@@ -80,9 +80,10 @@ export default class ChooseMusic extends wepy.component {
 
       .close {
         position: absolute;
-        right: 20rpx;
+        right: 0rpx;
         top: 20rpx;
         border: none;
+        text-align: right;
       }
 
       label {

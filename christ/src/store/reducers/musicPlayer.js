@@ -13,9 +13,7 @@ export default handleActions({
     }
     // 设置
     bgaManager.src = action.payload.source_url + '?time=' + Date.now()
-    console.log('真的切换歌曲了')
     bgaManager.title = action.payload.name
-    bgaManager.seek(0)
     // bgaManager.autoplay = true
     // 改变状态
     return {
@@ -32,7 +30,9 @@ export default handleActions({
     if (state.music_id) {
       // 播放
       const bgaManager = wepy.getBackgroundAudioManager()
-      bgaManager.play()
+      if (bgaManager.paused) {
+        bgaManager.play()
+      }
       return {
         ...state,
         isPlaying: true
@@ -46,7 +46,9 @@ export default handleActions({
   [PAUSE_MUSIC] (state) {
     if (state.music_id) {
       const bgaManager = wepy.getBackgroundAudioManager()
-      bgaManager.pause()
+      if (!bgaManager.paused) {
+        bgaManager.pause()
+      }
       return {
         ...state,
         isPlaying: false
@@ -60,7 +62,9 @@ export default handleActions({
   [STOP_MUSIC] (state) {
     if (state.music_id) {
       const bgaManager = wepy.getBackgroundAudioManager()
-      bgaManager.stop()
+      if (!bgaManager.paused && bgaManager.currentTime === 0.0) {
+        bgaManager.stop()
+      }
       return {
         ...state,
         isPlaying: false

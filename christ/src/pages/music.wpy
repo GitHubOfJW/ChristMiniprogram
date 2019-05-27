@@ -3,7 +3,7 @@
     <scroll-view class="content" scroll-y scroll-with-animation="{{true}}" scroll-into-view="{{scrollToId}}">
       <view class="lrcs">
         <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
-          <lrcitem id="{{'lrc' + index}}" :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
+          <lrcitem :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
         </repeat>
       </view>
       <button class="save" wx:if="{{edit && has_lrc}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
@@ -133,6 +133,7 @@ export default class Music extends wepy.page {
         const lrc = this.lrcs[i]
         lrc.checked = false
       }
+      console.log(this.scrollToId)
       this.$apply()
     },
     saveLrc: () => {
@@ -167,13 +168,13 @@ export default class Music extends wepy.page {
       if (this.id && this.id === id) {
         return
       }
-      this.id = id
       Request.request({
         url: '/music/mini/' + id,
         method: 'GET',
         success: ({data}) => {
           if (data.code === 20000) {
-            this.has_lrc = data.data.has_lrc
+            this.id = id
+            this.has_lrc = data.data.has_lrc && this.$parent.globalData.edit_lrc
             this.lrcs.splice(0, this.lrcs.length)
             if (!data.data.has_lrc) {
               this.lrcs.push({
@@ -191,7 +192,7 @@ export default class Music extends wepy.page {
               return
             }
             const lrcs = data.data.lrc.split('\n')
-            this.edit = data.data.lrc_edit
+            this.edit = data.data.lrc_edit && this.$parent.globalData.edit_lrc
             for (let lrc of lrcs) {
               const lrcItems = lrc.split(']')
               this.lrcs.push({
@@ -201,6 +202,13 @@ export default class Music extends wepy.page {
                 checked: false
               })
             }
+            // 刷新
+            const bgaManager = wepy.getBackgroundAudioManager()
+            this.current = Math.round(bgaManager.currentTime * 1000)
+            this.methods.checkScorllLrc(this.current)
+            this.currentTimeStr = this.methods.filter(this.current, false)
+            this.duration = Math.round(bgaManager.duration * 1000)
+            this.durationStr = this.methods.filter(this.duration, false)
             this.$apply()
           }
         },
@@ -266,11 +274,6 @@ export default class Music extends wepy.page {
   onLoad() {
     this.methods.getLrc()
     const bgaManager = wepy.getBackgroundAudioManager()
-    this.current = Math.round(bgaManager.currentTime * 1000)
-    this.methods.checkScorllLrc(this.current)
-    this.currentTimeStr = this.methods.filter(this.current, false)
-    this.duration = Math.round(bgaManager.duration * 1000)
-    this.durationStr = this.methods.filter(this.duration, false)
 
     MusicTool.addMusicListener({
       type: 'timeUpdate',
@@ -292,7 +295,7 @@ export default class Music extends wepy.page {
     })
 
     // 设置
-    bgaManager.onPlay(() => {
+    bgaManager.onCanplay(() => {
       this.methods.getLrc()
     })
   }
@@ -322,7 +325,7 @@ export default class Music extends wepy.page {
       background-color: #fbfbfb;
       .lrcs {
         padding-top: 40%;
-        padding-bottom: 60%;
+        padding-bottom: 40%;
         width: 100%;
       }
       .save {

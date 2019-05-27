@@ -6,11 +6,14 @@ export default class AccountTool {
     return openid
   }
   // 获取openid
-  static login() {
-    const openid = wx.getStorageSync('openid')
-    if (openid) {
-      return
-    }
+  static login(callback) {
+    // const openid = wx.getStorageSync('openid')
+    // if (openid) {
+    //   if (callback && typeof callback === 'function') {
+    //     callback()
+    //   }
+    //   return
+    // }
     // 登录
     wepy.login({
       success(res) {
@@ -27,10 +30,13 @@ export default class AccountTool {
                   key: 'openid',
                   data: data.data.openid
                 })
+
+                if (callback && typeof callback === 'function') {
+                  callback()
+                }
               }
             },
             fail: () => {
-              console.log('获取openid失败')
             }
           })
         }

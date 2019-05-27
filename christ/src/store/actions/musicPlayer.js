@@ -30,6 +30,31 @@ export const nextMusic = id => {
   })
 }
 
+export const prevMusic = id => {
+  // 上一首
+  Request.request({
+    url: '/music/mini/prev',
+    data: {
+      music_id: id,
+      playType: wepy.$store.getState().musicPlayer.playType
+    },
+    mehtod: 'GET',
+    success: ({ data }) => {
+      if (data.code === 20000) {
+        MusicTool.resetMusic({
+          ...(data.data),
+          origin: true
+        })
+        MusicTool.playMusic()
+      } else {
+        MusicTool.stopMusic()
+      }
+    },
+    fail: () => {
+    }
+  })
+}
+
 export const favoriteMusic = status => {
   // 收藏
   Request.request({

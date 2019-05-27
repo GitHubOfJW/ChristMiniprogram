@@ -6,15 +6,6 @@ export default class MusicTool {
   static ended () {
     const id = wepy.$store.getState().musicPlayer.music_id
     // 如果播放类型是单曲
-    // if (wepy.$store.getState().musicPlayer.playType === 1) {
-    //   const payload = wepy.$store.getState().musicPlayer.music_payload
-    //   MusicTool.resetMusic({
-    //     ...payload,
-    //     origin: true
-    //   })
-    //   MusicTool.playMusic()
-    //   return
-    // }
     nextMusic(id)
   }
 

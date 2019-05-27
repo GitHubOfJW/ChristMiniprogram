@@ -1,5 +1,5 @@
 <template>
-  <view class="lrc" @tap="settime">
+  <view class="lrc" @tap="settime" id="{{'lrc' + idx}}">
     <label class="time {{ !edit ? 'hide':''}}">{{ lrc.timeStr }}</label>
     <label class="text {{lrc.checked && !edit ? 'checked' : ''}}">{{ lrc.text }}</label>
   </view>
