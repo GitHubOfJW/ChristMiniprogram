@@ -11,7 +11,8 @@ export const nextMusic = id => {
     url: '/music/mini/next',
     data: {
       music_id: id,
-      playType: wepy.$store.getState().musicPlayer.playType
+      playType: wepy.$store.getState().musicPlayer.playType,
+      duration: wepy.$store.getState().musicPlayer.duration
     },
     mehtod: 'GET',
     success: ({ data }) => {
@@ -36,7 +37,8 @@ export const prevMusic = id => {
     url: '/music/mini/prev',
     data: {
       music_id: id,
-      playType: wepy.$store.getState().musicPlayer.playType
+      playType: wepy.$store.getState().musicPlayer.playType,
+      duration: wepy.$store.getState().musicPlayer.duration
     },
     mehtod: 'GET',
     success: ({ data }) => {

@@ -7,6 +7,9 @@
       <label class="desc">{{album.descr}}</label>
       <label class="count"> {{album.music_count}} 首歌曲</label>
     </view>
+    <view class="numChoose" wx:if="{{album.music_count > 0}}">
+      <label>序号选歌</label>
+    </view>
   </view>
 </template>
 
@@ -49,6 +52,28 @@ export default class AlbumDetail extends wepy.component {
     justify-content: space-between;
     align-items: center;
     position: relative;
+
+    .numChoose {
+      position: absolute;
+      height: 60rpx;
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+      background-color: red;
+      bottom:10rpx;
+      right: 0rpx;
+      justify-content: center;
+      align-items: center;
+      z-index:2;
+      padding: 0rpx 20rpx;
+
+      label {
+        text-align: center;
+        font-size: 30rpx;
+        color: white;
+        height: 60rpx;
+        line-height: 60rpx;
+      }
+  }
 
     image {
       height:300rpx;
@@ -98,9 +123,10 @@ export default class AlbumDetail extends wepy.component {
 
       .count {
         width: 100%;
-        text-align: right;
+        text-align: left;
         display: inline-block;
         height:30rpx;
+        padding-left:5rpx;
         line-height: 30rpx;
         color: white;
       }

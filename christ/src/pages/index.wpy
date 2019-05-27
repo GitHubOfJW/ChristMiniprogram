@@ -13,10 +13,11 @@
 
     <!-- 祷告文 -->
     <panel2 lines="bottom" wx:if="{{!isloading}}">
-      <view @tap="paryersHandler" class="prayers">
+      <view @tap="paryersHandler" class="prayers {{prayers_show ? '' : 'prayers_h'}}">
         <label for="祷告文">祷告词</label>
         <label for="祷告文内容">{{prayersTxt}}</label>
       </view>
+      <image wx:if="{{!prayers_show}}" class="prayers_arrow" src="../static/imgs/arrow.svg" model="AspectFit"></image>
     </panel2>
 
     <!-- 专辑 -->
@@ -70,11 +71,13 @@
       prayersTxt: '我们在天上的父,愿人都尊你的名为圣。愿你的国降临；愿你的旨意行在地上，如同行在天上。我们日用的饮食，今日赐给我们。免我们的债，如同我们免了人的债。不叫我们遇见试探；救我们脱离凶恶。因为国度、权柄、荣耀，全是你的，直到永远。阿们。',
       menus: null,
       isloading: true, // 进入页面默认一片空白
+      prayers_show: false,
       albums: [] // 专辑
     }
 
     methods = {
       paryersHandler () {
+        this.prayers_show = !this.prayers_show
       }
     }
 
@@ -146,12 +149,23 @@
     justify-content: space-around;
   }
 
+  .prayers_h {
+    height: 60rpx;
+  }
+
+  .prayers_arrow {
+      width:60rpx;
+      height:60rpx;
+      position: absolute;
+      right: 10rpx;
+      top:50%;
+      transform: translateY(-50%);
+  }
+
   .prayers {
     width: 650rpx;
     overflow: hidden;
-    height: 60rpx;
     font-size:30rpx;
-
     label:nth-of-type(1){
       font-weight: bold;
       margin-right: 20rpx;

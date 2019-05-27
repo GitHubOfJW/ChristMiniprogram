@@ -18,6 +18,7 @@ export default handleActions({
     // 改变状态
     return {
       ...state,
+      duration: bgaManager.duration,
       music_payload: action.payload,
       source_url: action.payload.source_url,
       music_name: action.payload.name,
@@ -114,6 +115,7 @@ export default handleActions({
 }, {
   isPlaying: false,
   music_id: 0,
+  duration: 0,
   favorite: false,
   playType: 2, // 1 单曲循环 2 列表循环
   music_payload: null,

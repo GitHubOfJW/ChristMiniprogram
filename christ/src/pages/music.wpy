@@ -1,6 +1,7 @@
 <template>
   <view class="browser">
-    <scroll-view class="content" scroll-y scroll-with-animation="{{true}}" scroll-into-view="{{scrollToId}}">
+    <image class="topCover" src="../static/imgs/topCover.svg" model="aspectFill"></image>
+    <scroll-view class="content" scroll-y scroll-with-animation="{{true}}" scroll-top="{{lrc_top}}rpx">
       <view class="lrcs">
         <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
           <lrcitem :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
@@ -8,6 +9,7 @@
       </view>
       <button class="save" wx:if="{{edit && has_lrc}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
     </scroll-view>
+    <image class="bottomCover" src="../static/imgs/bottomCover.svg" model="aspectFill"></image>
     <!-- 控制 -->
     <view class="control">
       <slider block-size="15" value="{{current}}" bindchanging="changing" bindchange="change" min="0" max="{{duration}}"></slider>
@@ -18,8 +20,14 @@
       <view class="tool">
         <image wx:if="{{ singlePlayer }}" @tap="typeHandler" src="../static/imgs/singlecycle.png" model="aspectFill"  />
         <image wx:if="{{ !singlePlayer }}" @tap="typeHandler" src="../static/imgs/listcycle.png" model="aspectFill"  />
+        <!-- 上一曲 -->
+        <image @tap="prevHander" src="../static/imgs/prev.png" model="aspectFill"  />
+        <!-- 中间播放按钮 -->
         <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
         <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <!-- 下一曲 -->
+        <image @tap="nextHandler" src="../static/imgs/next.png" model="aspectFill"  />
+        <!-- 收藏按钮 -->
         <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
         <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
@@ -33,7 +41,7 @@ import LrcItem from '@/components/lrcitem'
 import Request from '@/utils/request'
 import { connect } from 'wepy-redux'
 import MusicTool from '@/utils/MusicTool'
-import { favoriteMusic } from '@/store/actions/musicPlayer'
+import { nextMusic, prevMusic, favoriteMusic } from '@/store/actions/musicPlayer'
 import Toast from 'wepy-com-toast'
 @connect({
   hasMusic(state) {
@@ -73,7 +81,7 @@ export default class Music extends wepy.page {
     current: 0,
     duration: 0,
     seekFlag: false,
-    scrollToId: null
+    lrc_top: 0
   }
 
   events = {
@@ -92,6 +100,16 @@ export default class Music extends wepy.page {
   }
 
   methods = {
+    prevHander: () => {
+      const id = wepy.$store.getState().musicPlayer.music_id
+      // 如果播放类型是单曲
+      prevMusic(id)
+    },
+    nextHandler: () => {
+      const id = wepy.$store.getState().musicPlayer.music_id
+      // 如果播放类型是单曲
+      nextMusic(id)
+    },
     typeHandler: () => {
       const playType = wepy.$store.getState().musicPlayer.playType
       if (playType === 1) {
@@ -124,7 +142,7 @@ export default class Music extends wepy.page {
         if (time >= lrc.time) {
           lrc.checked = true
           clearIndex = i
-          this.scrollToId = 'lrc' + i
+          this.lrc_top = i * 60
           break
         }
       }
@@ -133,7 +151,6 @@ export default class Music extends wepy.page {
         const lrc = this.lrcs[i]
         lrc.checked = false
       }
-      console.log(this.scrollToId)
       this.$apply()
     },
     saveLrc: () => {
@@ -209,6 +226,7 @@ export default class Music extends wepy.page {
             this.currentTimeStr = this.methods.filter(this.current, false)
             this.duration = Math.round(bgaManager.duration * 1000)
             this.durationStr = this.methods.filter(this.duration, false)
+            this.lrc_top = 0
             this.$apply()
           }
         },
@@ -309,12 +327,47 @@ export default class Music extends wepy.page {
 </script>
 
 <style lang="less" scoped>
+  /*隐藏滚动条*/
+  ::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+  color: transparent;
+  }
+  
   .browser {
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
+
+    .topCover {
+      position: absolute;
+      left: 0rpx;
+      right: 0rpx;
+      height: 200rpx;
+      top:0;
+      background: -webkit-linear-gradient(#fbfbfb, #fbfbfb , transparent); /* Safari 5.1 - 6.0 */
+      background: -o-linear-gradient(#fbfbfb, #fbfbfb, transparent); /* Opera 11.1 - 12.0 */
+      background: -moz-linear-gradient(#fbfbfb,#fbfbfb, transparent); /* Firefox 3.6 - 15 */
+      background: linear-gradient(#fbfbfb,#fbfbfb, transparent); /* 标准的语法 */
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .bottomCover {
+      position: absolute;
+      left: 0rpx;
+      right: 0rpx;
+      height: 200rpx;
+      bottom: 270rpx;
+      background: -webkit-linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* Safari 5.1 - 6.0 */
+      background: -o-linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* Opera 11.1 - 12.0 */
+      background: -moz-linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* Firefox 3.6 - 15 */
+      background: linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* 标准的语法 */
+      z-index: 2;
+      pointer-events: none;
+    }
     
     .content {
       position: absolute;

@@ -6,7 +6,7 @@
     <panel1 wx:if="{{!isloading}}">
       <albumdetail :album.sync = "albumData"></albumdetail>
     </panel1>
-
+ 
     <csscrollview wx:if="{{!isloading}}" class="list {{ hasMusic ? 'list_play' : ''}}">
       <repeat for="{{musics}}" key="index" index="index" item="music">
         <musicitem :music.sync="music"></musicitem>
@@ -173,7 +173,9 @@
         this.chooseMusic = false
       },
       tapdetail: () => {
-        this.chooseMusic = true
+        if (this.albumCount > 0) {
+          this.chooseMusic = true
+        }
       },
       favorite: ({music_id, favorite}) => {
         this.methods.music_favorite(music_id, favorite)
@@ -274,6 +276,8 @@
     align-items: center;
     border-radius: 4px;
   }
+
+  
 
   .list_play {
     top: 480rpx;

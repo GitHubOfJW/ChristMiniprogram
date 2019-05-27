@@ -1,7 +1,8 @@
 <template>
   <view class="choose" wx:if="{{dialog}}">
     <view class="content">
-      <button class="close" type="default" plain bindtap="close" size="mini">关闭</button>
+      <!-- <button class="close" type="default" plain bindtap="close" size="mini">关闭</button> -->
+      <image class="close" @tap="close" src="../../static/imgs/close.png" model="aspectFit"></image>
       <label> 第 {{num}} 首</label>
       <slider block-size="18" bindchanging="changing" bindchange="change" value="{{value}}" min="1" max="{{count}}"></slider>
       <button type="primary" bindtap="confirm" size="mini">确定</button>
@@ -72,7 +73,7 @@ export default class ChooseMusic extends wepy.component {
       height: 350rpx;
       border-radius: 10px;
       transform: translateY(-40%);
-      box-shadow: 5px 5px 5px #aaa , -5px 5px 5px #aaa , 5px -5px 5px #aaa ,-5px -5px 5px #aaa;
+      box-shadow: 5px 5px 5px #ababab , -5px 5px 5px #ababab , 5px -5px 15px #ababab ,-5px -5px 5px #ababab;
       display: flex;
       flex-direction: column;
       justify-content: space-around;
@@ -80,10 +81,10 @@ export default class ChooseMusic extends wepy.component {
 
       .close {
         position: absolute;
-        right: 0rpx;
-        top: 20rpx;
-        border: none;
-        text-align: right;
+        right: 25rpx;
+        top: 25rpx;
+        width: 45rpx;
+        height: 45rpx;
       }
 
       label {
