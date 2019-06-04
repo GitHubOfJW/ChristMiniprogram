@@ -1,10 +1,12 @@
 <template>
-  <view class="item" @tap="tapItem">
+  <view class="item">
     <view class="line" wx:if="{{!menu.hideLine}}"></view>
     <image src="{{ menu.icon }}" model="AspectFit"></image>
     <label class="title">{{ menu.title }}</label>
     <label class="subTitle">{{ menu.subTitle }}</label>
     <image src="../static/imgs/arrow.svg" model="AspectFit"></image>
+    <button wx:if="{{menu.type==='none'}}" plain open-type="{{menu.openType}}"></button>
+    <button wx:if="{{menu.type!=='none'}}" plain @tap="tapItem"></button>
   </view>
 </template>
 
@@ -19,6 +21,8 @@ export default class TableItem extends wepy.component {
         icon: '../static/imgs/mzsm.png',
         title: '标题',
         subTitle: '自标题',
+        type: 'none',
+        openType: 'none',
         hideLine: false
       }
     }
@@ -46,6 +50,18 @@ export default class TableItem extends wepy.component {
     background-color: white;
     position: relative;
 
+    button {
+      position: absolute;
+      background-color: transparent;
+      border:none;
+      padding: 0rpx;
+      margin: 0rpx;
+      border-radius: 0rpx;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
      
     .line {
       position: absolute;

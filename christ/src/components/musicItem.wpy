@@ -73,8 +73,7 @@ export default class MusicItem extends wepy.component {
         return
       }
       this.infoScope = true
-      this.$parent.$parent.globalData.userInfo = e.detail.userInfo
-      this.$parent.$parent.globalData.infoScope = true
+      this.$parent.$parent.setUserInfo(e.detail.userInfo)
     }
   }
 

@@ -17,13 +17,17 @@
   "author": "Javen",
   "license": "MIT",
   "dependencies": {
+    "moment": "^2.24.0",
+    "net": "^1.0.2",
     "redux": "^3.7.2",
     "redux-actions": "^2.2.1",
     "redux-promise": "^0.5.3",
+    "url": "^0.11.0",
     "wepy": "^1.7.2",
     "wepy-async-function": "^1.4.4",
     "wepy-com-toast": "^1.0.2",
-    "wepy-redux": "^1.5.3"
+    "wepy-redux": "^1.5.3",
+    "wx-server-sdk": "^0.5.1"
   },
   "devDependencies": {
     "babel-eslint": "^7.2.1",

@@ -248,6 +248,12 @@
       this.$invoke('csscrollview', 'header_beginRefresh')
     }
     onHide() {
+      CsLoading.hideLoading({
+        success: () => {
+          this.isloading = false
+          this.$apply()
+        }
+      })
     }
   }
 </script>

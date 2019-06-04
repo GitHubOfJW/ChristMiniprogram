@@ -97,7 +97,7 @@
       background-color: #f2f2f2;
       transform:scaleY(0.768);
       position: absolute;
-      bottom:1rpx;
+      bottom:0rpx;
       left:0;
       z-index: 2;
     }
@@ -136,6 +136,6 @@
   }
 
   .marginTop {
-    margin-top: 30rpx;
+    margin-top: 15rpx;
   }
 </style>

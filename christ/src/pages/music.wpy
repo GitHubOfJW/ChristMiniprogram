@@ -1,6 +1,6 @@
 <template>
   <view class="browser">
-    <image class="topCover" src="../static/imgs/topCover.svg" model="aspectFill"></image>
+    <image class="topCover" src="../static/imgs/lrc_cover.png" model="scaleToFill"></image>
     <scroll-view class="content" scroll-y scroll-with-animation="{{true}}" scroll-top="{{lrc_top}}rpx">
       <view class="lrcs">
         <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
@@ -9,7 +9,7 @@
       </view>
       <button class="save" wx:if="{{edit && has_lrc}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
     </scroll-view>
-    <image class="bottomCover" src="../static/imgs/bottomCover.svg" model="aspectFill"></image>
+    <image class="bottomCover" src="../static/imgs/lrc_cover.png" mode="scaleToFill"></image>
     <!-- 控制 -->
     <view class="control">
       <slider block-size="15" value="{{current}}" bindchanging="changing" bindchange="change" min="0" max="{{duration}}"></slider>
@@ -127,7 +127,7 @@ export default class Music extends wepy.page {
     change: (e) => {
       const currentTime = e.detail.value / 1000
       const bgaManager = wepy.getBackgroundAudioManager()
-      const time = Math.min(currentTime, bgaManager.duration)
+      const time = Math.min(currentTime, bgaManager.duration) - 1
       bgaManager.seek(time)
       this.seekFlag = false
       this.$apply()
@@ -347,10 +347,6 @@ export default class Music extends wepy.page {
       right: 0rpx;
       height: 200rpx;
       top:0;
-      background: -webkit-linear-gradient(#fbfbfb, #fbfbfb , transparent); /* Safari 5.1 - 6.0 */
-      background: -o-linear-gradient(#fbfbfb, #fbfbfb, transparent); /* Opera 11.1 - 12.0 */
-      background: -moz-linear-gradient(#fbfbfb,#fbfbfb, transparent); /* Firefox 3.6 - 15 */
-      background: linear-gradient(#fbfbfb,#fbfbfb, transparent); /* 标准的语法 */
       z-index: 2;
       pointer-events: none;
     }
@@ -361,11 +357,8 @@ export default class Music extends wepy.page {
       right: 0rpx;
       height: 200rpx;
       bottom: 270rpx;
-      background: -webkit-linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* Safari 5.1 - 6.0 */
-      background: -o-linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* Opera 11.1 - 12.0 */
-      background: -moz-linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* Firefox 3.6 - 15 */
-      background: linear-gradient(bottom, #fbfbfb, #fbfbfb , transparent); /* 标准的语法 */
       z-index: 2;
+      transform: rotateZ(180deg);
       pointer-events: none;
     }
     

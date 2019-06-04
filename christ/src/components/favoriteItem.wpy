@@ -2,7 +2,7 @@
   <view class="music {{ music_id === music.id ? 'checked' : '' }}" @tap="clickMusic">
     <view class="numb">
     <image wx:if="{{ music_id === music.id }}" src="../static/imgs/current.svg" model="aspectFill" /> 
-    <image wx:if="{{ music_id !== music.id }}" src="{{music.album.big_url}}" model="aspectFill" />
+    <image wx:if="{{ music_id !== music.id }}" src="{{music.album.thumb_url}}" model="aspectFill" />
     </view>
     <view class="info">
       <label>{{music.name}}</label>

@@ -26,9 +26,14 @@
         <label slot="title">{{album.name}}</label>
       </carditem>
     </repeat>
+    
+    <view class="rewared" @tap="rewaredHandler">
+      <label>慷慨打赏</label>
+    </view>
 
     <toast />
     <csloading />
+    <prompt :content.sync="content" :title.sync="title" :dialog.sync="dialog"/>
   </view>
 </template>
 
@@ -42,6 +47,7 @@
   import CustomLoading from '@/components/customize/csLoading'
   // import CsLoading from '@/utils/CsLoading'
   import Toast from 'wepy-com-toast'
+  import Prompt from '@/components/customize/prompt'
   import Request from '@/utils/request'
 
   @connect({
@@ -63,6 +69,7 @@
       cusaudio: CusAudio,
       carditem: CardItem,
       csloading: CustomLoading,
+      prompt: Prompt,
       toast: Toast
     }
 
@@ -72,10 +79,19 @@
       menus: null,
       isloading: true, // 进入页面默认一片空白
       prayers_show: false,
+      content: '',
+      dialog: false,
+      title: '',
       albums: [] // 专辑
     }
 
     methods = {
+      rewaredHandler () {
+        wepy.navigateToMiniProgram({
+          appId: 'wx18a2ac992306a5a4',
+          path: 'pages/apps/largess/detail?id=E239D7%2FyRJM%3D'
+        })
+      },
       paryersHandler () {
         this.prayers_show = !this.prayers_show
       }
@@ -89,15 +105,21 @@
         })
       },
       tapmenu (menu) {
-        console.log(menu)
+        // console.log(menu)
         // 扫码分享
-        if (menu.type === 0) {
-
-        } else if (menu.type === 1) { // 打赏声明
-
-        } else if (menu.type === 2) { // 免责声明
-
+        if (menu.type === 'wxacode') {
+          // 跳转到分享页
+          wepy.navigateTo({
+            url: 'share'
+          })
+        } else if (menu.type === 'prompt') { // 提示
+          this.content = menu.content
+          this.title = menu.title
+          this.dialog = true
         }
+      },
+      closePrompt () {
+        this.dialog = false
       }
     }
 
@@ -131,6 +153,9 @@
       })
     }
 
+    onShow() {
+      wepy.showShareMenu()
+    }
     onHide() {
 
     }
@@ -141,49 +166,73 @@
     padding-top:100rpx;
   }
 
-  .header {
-    width: 750rpx;
-    // height:(750rpx/9+60rpx);
-    // background-color: blue;
-    display: flex;
-    justify-content: space-around;
-  }
+  .container {
+    .rewared {
+      position: fixed;
+      height: 60rpx;
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+      background-color: red;
+      top:360rpx;
+      right: 0rpx;
+      justify-content: center;
+      align-items: center;
+      z-index:2;
+      padding: 0rpx 20rpx;
 
-  .prayers_h {
-    height: 60rpx;
-  }
-
-  .prayers_arrow {
-      width:60rpx;
-      height:60rpx;
-      position: absolute;
-      right: 10rpx;
-      top:50%;
-      transform: translateY(-50%);
-  }
-
-  .prayers {
-    width: 650rpx;
-    overflow: hidden;
-    font-size:30rpx;
-    label:nth-of-type(1){
-      font-weight: bold;
-      margin-right: 20rpx;
-      height:60rpx;
-      line-height: 60rpx;
-      color: black;
+      label {
+        text-align: center;
+        font-size: 30rpx;
+        color: white;
+        height: 60rpx;
+        line-height: 60rpx;
+      }
     }
 
-    label:nth-of-type(2){
-      // background-color: red;
-      max-height:60rpx;
-      line-height: 60rpx;
-      color:#999;
+    .header {
+      width: 750rpx;
+      // height:(750rpx/9+60rpx);
+      // background-color: blue;
+      display: flex;
+      justify-content: space-around;
     }
-  }
- 
-  .card {
-    width: 650rpx;
-    margin-top:30rpx;
+
+    .prayers_h {
+      height: 60rpx;
+    }
+
+    .prayers_arrow {
+        width:60rpx;
+        height:60rpx;
+        position: absolute;
+        right: 10rpx;
+        top:50%;
+        transform: translateY(-50%);
+    }
+
+    .prayers {
+      width: 650rpx;
+      overflow: hidden;
+      font-size:30rpx;
+      label:nth-of-type(1){
+        font-weight: bold;
+        margin-right: 20rpx;
+        height:60rpx;
+        line-height: 60rpx;
+        color: black;
+      }
+
+      label:nth-of-type(2){
+        // background-color: red;
+        max-height:60rpx;
+        line-height: 60rpx;
+        color:#999;
+      }
+    }
+  
+    .card {
+      width: 650rpx;
+      margin-top:30rpx;
+    }
   }
 </style>

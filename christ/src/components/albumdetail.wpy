@@ -73,7 +73,7 @@ export default class AlbumDetail extends wepy.component {
         height: 60rpx;
         line-height: 60rpx;
       }
-  }
+    }
 
     image {
       height:300rpx;

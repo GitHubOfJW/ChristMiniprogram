@@ -16,5 +16,7 @@
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
 	"libVersion": "2.7.0",
+	"qcloudRoot": "cloud/",
+	"cloudfunctionRoot": "cloud/",
 	"condition": {}
 }
