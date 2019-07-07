@@ -9,8 +9,9 @@
         <label>{{ name }}</label>
       </view>
       <view class="actions">
-        <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
-        <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image wx:if="{{ isCache }}" @tap="playHandler" src="../static/imgs/circles.svg" model="aspectFill"  />
+        <image wx:if="{{ !isCache && paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image wx:if="{{ !isCache && !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
         <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
         <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
@@ -39,6 +40,9 @@ import { favoriteMusic } from '@/store/actions/musicPlayer'
   },
   favorite(state) {
     return state.musicPlayer.favorite
+  },
+  isCache(state) {
+    return state.musicPlayer.isWaiting
   }
 })
 export default class CusAudio extends wepy.component {

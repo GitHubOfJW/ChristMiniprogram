@@ -92,10 +92,10 @@ export default class CsScrollView extends wepy.component {
       }
 
       this.currentTop = this.scrollTop
-      if (this.upNoData) {
-        this.methods.footer_endRefresh()
-        return
-      }
+      // if (this.upNoData) {
+      //   this.methods.footer_endRefresh()
+      //   return
+      // }
 
       if (this.upFalg) {
         return
@@ -107,10 +107,10 @@ export default class CsScrollView extends wepy.component {
         return
       }
 
-      if (this.downNoData) {
-        this.methods.header_endRefresh()
-        return
-      }
+      // if (this.downNoData) {
+      //   this.methods.header_endRefresh()
+      //   return
+      // }
       if (this.downFlag) {
         return
       }

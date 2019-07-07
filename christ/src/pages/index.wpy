@@ -59,7 +59,8 @@
   export default class Index extends wepy.page {
     config = {
       navigationBarTitleText: '基督随身听',
-      enablePullDownRefresh: true
+      enablePullDownRefresh: true,
+      backgroundTextStyle: 'dark'
     }
     components = {
       menuitem: MenuItem,

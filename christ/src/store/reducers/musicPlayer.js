@@ -1,6 +1,7 @@
 import { handleActions } from 'redux-actions'
-import { PLAY_MUSIC, PAUSE_MUSIC, STOP_MUSIC, RESET_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT, PLAY_TYPE } from '../types/musicPlayer'
+import { PLAY_MUSIC, PAUSE_MUSIC, STOP_MUSIC, RESET_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT, PLAY_TYPE, CHANGE_LOADING } from '../types/musicPlayer'
 import wepy from 'wepy'
+import MusicTool from '../../utils/MusicTool';
 export default handleActions({
   [RESET_MUSIC] (state, action) {
     // 如果当前已经有实例那就先销毁
@@ -14,6 +15,10 @@ export default handleActions({
     // 设置
     bgaManager.src = action.payload.source_url + '?time=' + Date.now()
     bgaManager.title = action.payload.name
+    bgaManager.onWaiting(() => {
+      console.log('等待')
+      MusicTool.changeWait(true)
+    })
     // bgaManager.autoplay = true
     // 改变状态
     return {
@@ -111,9 +116,16 @@ export default handleActions({
       ...state,
       playType: action.payload.playType || 2
     }
+  },
+  [CHANGE_LOADING] (state, action) {
+    return {
+      ...state,
+      loading: action.payload.waiting || false
+    }
   }
 }, {
   isPlaying: false,
+  isWaiting: false,
   music_id: 0,
   duration: 0,
   favorite: false,

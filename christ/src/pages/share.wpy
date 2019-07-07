@@ -32,7 +32,7 @@ export default class Share extends wepy.page {
       // 获取二维码，然后存储
       const fileManager = wepy.getFileSystemManager()
       const that = this
-      wx.cloud.init()
+      // wx.cloud.init()
       wx.cloud.callFunction({
         // 云函数名称
         name: 'getWxCode',

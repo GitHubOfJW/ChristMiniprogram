@@ -82,12 +82,11 @@ export default class AccountTool {
   // 获取access_token
   static getAccessToken(callback) {
     // 判断本地是否有
-    const appInfo = wepy.getStorageSync('appInfo')
     const tokenData = wepy.getStorageSync('acc_token')
     // 如果存储的时间已过期 或 第一次获取 则发送请求获取新的token 否则直接获取
     if (!tokenData || tokenData.expireTime < (Date.now() / 1000)) {
       Request.request({
-        abUrl: 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' + appInfo.appid + '&secret=' + appInfo.secret,
+        url: '/mini/getAccToken',
         method: 'GET',
         success: ({data}) => {
           const accessToken = data.access_token

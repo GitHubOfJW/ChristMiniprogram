@@ -7,7 +7,7 @@
           <lrcitem :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
         </repeat>
       </view>
-      <button class="save" wx:if="{{edit && has_lrc}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
+      <button class="save" wx:if="{{edit}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
     </scroll-view>
     <image class="bottomCover" src="../static/imgs/lrc_cover.png" mode="scaleToFill"></image>
     <!-- 控制 -->
@@ -193,23 +193,30 @@ export default class Music extends wepy.page {
             this.id = id
             this.has_lrc = data.data.has_lrc && this.$parent.globalData.edit_lrc
             this.lrcs.splice(0, this.lrcs.length)
+            this.edit = data.data.lrc_edit && this.$parent.globalData.edit_lrc
             if (!data.data.has_lrc) {
               this.lrcs.push({
                 time: 1000,
                 timeStr: '[0:1:0]',
-                text: '暂无歌词',
+                text: '歌曲：' + data.data.name,
+                checked: false
+              })
+              this.lrcs.push({
+                time: 1500,
+                timeStr: '[0:1:500]',
+                text: '作者：' + data.data.author,
                 checked: false
               })
               this.lrcs.push({
                 time: this.methods.trans('[0:3:0]'),
                 timeStr: '[0:3:0]',
-                text: '点击歌曲按钮查看歌谱',
+                text: '暂无歌词',
                 checked: false
               })
+              this.$apply()
               return
             }
             const lrcs = data.data.lrc.split('\n')
-            this.edit = data.data.lrc_edit && this.$parent.globalData.edit_lrc
             for (let lrc of lrcs) {
               const lrcItems = lrc.split(']')
               this.lrcs.push({
@@ -219,6 +226,18 @@ export default class Music extends wepy.page {
                 checked: false
               })
             }
+            this.lrcs.unshift({
+              time: 50,
+              timeStr: '[0:0:50]',
+              text: '作者：' + data.data.author,
+              checked: false
+            })
+            this.lrcs.unshift({
+              time: 50,
+              timeStr: '[0:0:100]',
+              text: '歌曲：' + data.data.name,
+              checked: false
+            })
             // 刷新
             const bgaManager = wepy.getBackgroundAudioManager()
             this.current = Math.round(bgaManager.currentTime * 1000)

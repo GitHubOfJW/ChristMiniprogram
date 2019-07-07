@@ -9,6 +9,16 @@ export default class MusicTool {
     nextMusic(id)
   }
 
+  // 修改waiting状态
+  static changeWait(waiting = false) {
+    wepy.$store.dispatch({
+      type: PLAY_TYPE,
+      payload: {
+        waiting: waiting
+      }
+    })
+  }
+
   // 修改播放类型
   static changePlayType(playType = 1) {
     wepy.$store.dispatch({
@@ -83,6 +93,7 @@ export default class MusicTool {
     wepy.$store.dispatch({
       type: PLAY_MUSIC
     })
+    this.changeWait(false)
   }
 
   // 暂停音乐

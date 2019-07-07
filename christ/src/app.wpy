@@ -74,15 +74,10 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    // 存储appid 方便获取access_token
-    wepy.setStorage({
-      key: 'appInfo',
-      data: {
-        appid: 'wx92589ad7fbbc7bf7',
-        secret: '675e8227c7566500d8736e8fb084d993'
-      }
+    // 初始化
+    wx.cloud.init({
+      traceUser: true
     })
-
     // 账户登录
     AccountTool.login(() => {
       // 获取用户信息

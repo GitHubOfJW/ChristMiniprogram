@@ -24,3 +24,6 @@ export const FAVORITE_MUSIC = 'FAVORITE_MUSIC'
 
 // 切换播放模式
 export const PLAY_TYPE = 'PLAY_TYPE'
+
+// 播放状态
+export const CHANGE_LOADING = 'CHANGE_LOADING'

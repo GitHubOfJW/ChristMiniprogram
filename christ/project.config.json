@@ -1,13 +1,20 @@
 {
 	"description": "在线收听赞美诗歌、圣经，传播基督福音。",
 	"setting": {
-		"urlCheck": false,
+		"urlCheck": true,
 		"es6": false,
 		"postcss": false,
 		"minified": false,
 		"newFeature": true,
 		"autoAudits": false,
-		"checkInvalidKey": true
+		"checkInvalidKey": true,
+		"checkSiteMap": true,
+		"uploadWithSourceMap": true,
+		"babelSetting": {
+			"ignore": [],
+			"disablePlugins": [],
+			"outputPath": ""
+		}
 	},
 	"compileType": "miniprogram",
 	"appid": "wx92589ad7fbbc7bf7",
@@ -15,7 +22,7 @@
 	"miniprogramRoot": "dist/",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
-	"libVersion": "2.7.0",
+	"libVersion": "2.7.3",
 	"qcloudRoot": "cloud/",
 	"cloudfunctionRoot": "cloud/",
 	"condition": {}

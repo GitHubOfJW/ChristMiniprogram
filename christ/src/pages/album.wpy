@@ -7,11 +7,16 @@
       <albumdetail :album.sync = "albumData"></albumdetail>
     </panel1>
  
-    <csscrollview wx:if="{{!isloading}}" class="list {{ hasMusic ? 'list_play' : ''}}">
+    <view wx:if="{{!isloading}}" class="list {{ hasMusic ? 'list_play' : ''}}">
       <repeat for="{{musics}}" key="index" index="index" item="music">
         <musicitem :music.sync="music"></musicitem>
       </repeat>
-    </csscrollview>
+    </view>
+
+    <view class="numChoose {{hasMusic ? 'numChoose_play' : ''}}" @tap="showChoose" wx:if="{{albumData.music_count > 0}}">
+      <label>序号选歌</label>
+    </view>
+
     <toast />
     <csloading />
     <choosemusic :value.sync="chooseNum" :dialog.sync="chooseMusic" :count.sync="albumCount" />
@@ -43,7 +48,9 @@
   export default class Album extends wepy.page {
     config = {
       navigationBarTitleText: '专辑',
-      disableScroll: true
+      disableScroll: false,
+      enablePullDownRefresh: true,
+      backgroundTextStyle: 'dark'
     }
 
     components = {
@@ -136,15 +143,13 @@
               if (clear) {
                 this.musics.splice(0, this.musics.length)
               }
+              const isFirst = this.musics.length <= 0
               for (let i = 0; i < data.data.items.length; i++) {
                 if (isHeader) {
-                  const music = data.data.items[data.data.items.length - 1 - i]
+                  const music = !isFirst ? data.data.items[i] : data.data.items[data.data.items.length - 1 - i]
                   this.musics.unshift(music)
                 } else {
                   const music = data.data.items[i]
-                  if (clear && music.num === maxId + 1) {
-                    this.events.choose_music(music)
-                  }
                   this.musics.push(music)
                 }
               }
@@ -155,13 +160,19 @@
           },
           complete: () => {
             if (isHeader) {
-              this.$invoke('csscrollview', 'header_endRefresh')
+              // this.$invoke('csscrollview', 'header_endRefresh')
+              wepy.stopPullDownRefresh()
             } else {
-              this.$invoke('csscrollview', 'footer_endRefresh')
+              // this.$invoke('csscrollview', 'footer_endRefresh')
             }
             this.$apply()
           }
         })
+      },
+      showChoose: () => {
+        if (this.albumCount > 0) {
+          this.chooseMusic = true
+        }
       }
     }
 
@@ -187,18 +198,6 @@
         MusicTool.resetMusic(music)
         MusicTool.playMusic()
       },
-      headerRefreshHandler: () => {
-        this.methods.getData({
-          minId: this.musics.length > 0 ? this.musics[0].num : -1,
-          isHeader: true
-        })
-      },
-      footerRefreshHandler: () => {
-        this.methods.getData({
-          maxId: this.musics.length > 0 ? this.musics[this.musics.length - 1].num : -1,
-          isHeader: false
-        })
-      },
       chooseMusic: (value) => {
         this.chooseMusic = false
         this.chooseNum = value
@@ -212,7 +211,7 @@
     }
 
     onLoad(option) {
-      CsLoading.showLoading()
+      // CsLoading.showLoading()
       this.isloading = true
       // 获取到ID 发起请求
       if (option && option.id) {
@@ -231,12 +230,12 @@
 
           },
           complete: () => {
-            CsLoading.hideLoading({
-              success: () => {
-                this.isloading = false
-                this.$apply()
-              }
-            })
+            // CsLoading.hideLoading({
+            //   success: () => {
+            this.isloading = false
+            this.$apply()
+              // }
+            // })
           }
         })
       } else {
@@ -245,8 +244,26 @@
     }
 
     onShow() {
-      this.$invoke('csscrollview', 'header_beginRefresh')
+      // this.$invoke('csscrollview', 'header_beginRefresh')
+      wepy.startPullDownRefresh()
     }
+
+    // 下拉刷新
+    onPullDownRefresh() {
+      this.methods.getData({
+        minId: this.musics.length > 0 ? this.musics[0].num : -1,
+        isHeader: true
+      })
+    }
+
+    // 上拉刷新
+    onReachBottom() {
+      this.methods.getData({
+        maxId: this.musics.length > 0 ? this.musics[this.musics.length - 1].num : -1,
+        isHeader: false
+      })
+    }
+
     onHide() {
       CsLoading.hideLoading({
         success: () => {
@@ -268,12 +285,12 @@
   }
   
   .list {
-    position: absolute;
+    // position: absolute;
     // width: 750rpx;
-    left: 0rpx;
-    right: 0rpx;
-    top: 380rpx;
-    bottom:0rpx;
+    // left: 0rpx;
+    // right: 0rpx;
+    // top: 380rpx;
+    // bottom:0rpx;
     border-radius: 3px;
     box-sizing: border-box;
     display: flex;
@@ -283,9 +300,34 @@
     border-radius: 4px;
   }
 
-  
+  .numChoose {
+      position: fixed;
+      height: 60rpx;
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+      background-color: red;
+      top:280rpx;
+      right: 0rpx;
+      justify-content: center;
+      align-items: center;
+      z-index:2;
+      padding: 0rpx 20rpx;
+
+      label {
+        text-align: center;
+        font-size: 30rpx;
+        color: white;
+        height: 60rpx;
+        line-height: 60rpx;
+      }
+    }
+
 
   .list_play {
     top: 480rpx;
+  }
+
+  .numChoose_play {
+    top: 380rpx;
   }
 </style>
