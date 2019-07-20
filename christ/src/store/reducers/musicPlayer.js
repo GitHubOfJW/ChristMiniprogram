@@ -1,7 +1,7 @@
 import { handleActions } from 'redux-actions'
 import { PLAY_MUSIC, PAUSE_MUSIC, STOP_MUSIC, RESET_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT, PLAY_TYPE, CHANGE_LOADING } from '../types/musicPlayer'
 import wepy from 'wepy'
-import MusicTool from '../../utils/MusicTool';
+// import MusicTool from '../../utils/MusicTool'
 export default handleActions({
   [RESET_MUSIC] (state, action) {
     // 如果当前已经有实例那就先销毁
@@ -15,10 +15,7 @@ export default handleActions({
     // 设置
     bgaManager.src = action.payload.source_url + '?time=' + Date.now()
     bgaManager.title = action.payload.name
-    bgaManager.onWaiting(() => {
-      console.log('等待')
-      MusicTool.changeWait(true)
-    })
+    
     // bgaManager.autoplay = true
     // 改变状态
     return {
@@ -88,27 +85,27 @@ export default handleActions({
     if (state.music_id) {
       const bgaManager = wepy.getBackgroundAudioManager()
       if (type === 'ended') {
-        state.events[type] = fn
+        // state.events[type] = fn
         bgaManager.onEnded(fn)
       } else if (type === 'timeUpdate') {
-        state.events[type] = fn
+        // state.events[type] = fn
         bgaManager.onTimeUpdate(fn)
       }
     }
     return state
   },
   [OFF_EVENT] (state, action) {
-    // const { type = '' } = action.payload
-    // if (state.music_id) {
-    //   const bgaManager = wepy.getBackgroundAudioManager()
-    //   if (type === 'ended' && state.events[type]) {
-    //     bgaManager.offEnded(state.events[type])
-    //     delete state.events[type]
-    //   } else if (type === 'timeUpdate') {
-    //     bgaManager.offTimeUpdate(state.events[type])
-    //     delete state.events[type]
-    //   }
-    // }
+    const { type = '' } = action.payload
+    if (state.music_id) {
+      const bgaManager = wepy.getBackgroundAudioManager()
+      if (type === 'ended') {
+        bgaManager.onEnded(null)
+        // delete state.events[type]
+      } else if (type === 'timeUpdate') {
+        bgaManager.onTimeUpdate(null)
+        // delete state.events[type]
+      }
+    }
     return state
   },
   [PLAY_TYPE] (state, action) {
@@ -120,7 +117,7 @@ export default handleActions({
   [CHANGE_LOADING] (state, action) {
     return {
       ...state,
-      loading: action.payload.waiting || false
+      isWaiting: action.payload.waiting || false
     }
   }
 }, {

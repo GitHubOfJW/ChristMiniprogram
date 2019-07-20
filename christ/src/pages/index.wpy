@@ -106,7 +106,6 @@
         })
       },
       tapmenu (menu) {
-        // console.log(menu)
         // 扫码分享
         if (menu.type === 'wxacode') {
           // 跳转到分享页

@@ -1,11 +1,11 @@
 <template>
   <view class="container {{ hasMusic ? 'is_play' : '' }}">
     <cusaudio :inPage.sync="inPage"></cusaudio>
-    <csscrollview wx:if="{{!isloading}}" :smallPadding.sync="small" enableBottom="{{false}}" class="list {{ hasMusic ? 'list_play' : ''}}">
+    <view wx:if="{{!isloading}}" class="list">
       <repeat for="{{questions}}" key="index" index="index" item="question">
         <questionitem :question.sync="question"></questionitem>
       </repeat>
-    </csscrollview>
+    </view>
 
     <toast />
     <csloading />
@@ -18,7 +18,6 @@
   import Panel from '@/components/panel' // alias example
   import CusAudio from '@/components/cusaudio'
   import CustomLoading from '@/components/customize/csLoading'
-  import CsScrollView from '@/components/customize/csScrollView'
   import QuestionItem from '@/components/questionItem'
   import Toast from 'wepy-com-toast'
   import Request from '@/utils/request'
@@ -32,7 +31,9 @@
   export default class Question extends wepy.page {
     config = {
       navigationBarTitleText: '常见问题',
-      disableScroll: true
+      disableScroll: false,
+      enablePullDownRefresh: true,
+      backgroundTextStyle: 'dark'
     }
 
     components = {
@@ -41,7 +42,6 @@
       panel2: Panel,
       cusaudio: CusAudio,
       csloading: CustomLoading,
-      csscrollview: CsScrollView,
       questionitem: QuestionItem,
       toast: Toast
     }
@@ -67,7 +67,6 @@
           data: data,
           success: ({data}) => {
             if (data.code === 20000) {
-              this.$invoke('csscrollview', 'header_endRefresh', {noData: data.data.total <= 0})
               this.questions.splice(0, this.questions.length)
               for (let question of data.data.items) {
                 this.questions.push(question)
@@ -78,7 +77,7 @@
 
           },
           complete: () => {
-            this.$invoke('csscrollview', 'header_endRefresh')
+            wepy.stopPullDownRefresh()
             this.$apply()
           }
         })
@@ -88,26 +87,31 @@
     computed = {
     }
 
-    events = {
-      headerRefreshHandler: () => {
-        this.methods.getData()
-      }
-    }
-
     onLoad() {
 
     }
 
-    onShow() {
-      this.$invoke('csscrollview', 'header_beginRefresh')
+    onPullDownRefresh() {
+      this.page = 1
+      this.methods.getData()
     }
+
+    onReachBottom() {
+      this.page = this.page + 1
+      this.methods.getData()
+    }
+
+    onShow() {
+      wepy.startPullDownRefresh()
+    }
+
     onHide() {
     }
   }
 </script>
 <style lang="less">
   .is_play {
-    padding-top:100rpx;
+    padding-top:110rpx;
   }
  
   .container {
@@ -116,12 +120,7 @@
   }
   
   .list {
-    position: absolute;
-    // width: 750rpx;
-    left: 0rpx;
-    right: 0rpx;
-    top: 0rpx;
-    bottom:0rpx;
+    padding-top:20rpx;
     border-radius: 3px;
     box-sizing: border-box;
     display: flex;
@@ -129,9 +128,5 @@
     justify-content: flex-start;
     align-items: center;
     border-radius: 4px;
-  }
-
-  .list_play {
-    top: 100rpx;
   }
 </style>

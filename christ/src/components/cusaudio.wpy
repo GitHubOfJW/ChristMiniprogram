@@ -9,7 +9,7 @@
         <label>{{ name }}</label>
       </view>
       <view class="actions">
-        <image wx:if="{{ isCache }}" @tap="playHandler" src="../static/imgs/circles.svg" model="aspectFill"  />
+        <image wx:if="{{ isCache }}" src="../static/imgs/circles.svg" model="aspectFill"  />
         <image wx:if="{{ !isCache && paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
         <image wx:if="{{ !isCache && !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
         <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
@@ -166,5 +166,9 @@ export default class CusAudio extends wepy.component {
       bottom:1rpx;
       left:0;
     }
+  }
+
+  .hide {
+    display: none;
   }
 </style>

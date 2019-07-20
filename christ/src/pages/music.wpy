@@ -23,8 +23,9 @@
         <!-- 上一曲 -->
         <image @tap="prevHander" src="../static/imgs/prev.png" model="aspectFill"  />
         <!-- 中间播放按钮 -->
-        <image wx:if="{{ paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
-        <image wx:if="{{ !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image wx:if="{{ isCache }}" src="../static/imgs/circles.svg" model="aspectFill"  />
+        <image wx:if="{{ !isCache && paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image wx:if="{{ !isCache && !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
         <!-- 下一曲 -->
         <image @tap="nextHandler" src="../static/imgs/next.png" model="aspectFill"  />
         <!-- 收藏按钮 -->
@@ -58,6 +59,9 @@ import Toast from 'wepy-com-toast'
   },
   favorite(state) {
     return state.musicPlayer.favorite
+  },
+  isCache(state) {
+    return state.musicPlayer.isWaiting
   }
 })
 
@@ -74,7 +78,7 @@ export default class Music extends wepy.page {
   data = {
     lrcs: [],
     id: null,
-    edit: true,
+    edit: false,
     has_lrc: false,
     durationStr: '',
     currentTimeStr: '',
@@ -103,12 +107,12 @@ export default class Music extends wepy.page {
     prevHander: () => {
       const id = wepy.$store.getState().musicPlayer.music_id
       // 如果播放类型是单曲
-      prevMusic(id)
+      prevMusic(id, 2)
     },
     nextHandler: () => {
       const id = wepy.$store.getState().musicPlayer.music_id
       // 如果播放类型是单曲
-      nextMusic(id)
+      nextMusic(id, 2)
     },
     typeHandler: () => {
       const playType = wepy.$store.getState().musicPlayer.playType
@@ -120,15 +124,15 @@ export default class Music extends wepy.page {
     },
     changing: (e) => {
       this.seekFlag = true
-      const currentTime = e.detail.value
+      const currentTime = (e.detail.value || 0) / 1000
       this.currentTimeStr = this.methods.filter(currentTime, false)
       this.$apply()
     },
     change: (e) => {
-      const currentTime = e.detail.value / 1000
+      const currentTime = (e.detail.value || 0) / 1000
       const bgaManager = wepy.getBackgroundAudioManager()
       const time = Math.min(currentTime, bgaManager.duration) - 1
-      bgaManager.seek(time)
+      bgaManager.seek(time || 0.01)
       this.seekFlag = false
       this.$apply()
     },
@@ -240,10 +244,10 @@ export default class Music extends wepy.page {
             })
             // 刷新
             const bgaManager = wepy.getBackgroundAudioManager()
-            this.current = Math.round(bgaManager.currentTime * 1000)
+            this.current = Math.round((bgaManager.currentTime || 0) * 1000)
             this.methods.checkScorllLrc(this.current)
             this.currentTimeStr = this.methods.filter(this.current, false)
-            this.duration = Math.round(bgaManager.duration * 1000)
+            this.duration = Math.round((bgaManager.duration || 0) * 1000)
             this.durationStr = this.methods.filter(this.duration, false)
             this.lrc_top = 0
             this.$apply()
@@ -319,13 +323,13 @@ export default class Music extends wepy.page {
         if (this.seekFlag) {
           return
         }
-        this.current = Math.round(bgaManager.currentTime * 1000)
+        this.current = Math.round((bgaManager.currentTime || 0) * 1000)
         this.methods.checkScorllLrc(this.current)
         this.currentTimeStr = this.methods.filter(this.current, false)
         if (bgaManager.duration <= 0) {
           return
         }
-        this.duration = Math.round(bgaManager.duration * 1000)
+        this.duration = Math.round((bgaManager.duration || 0) * 1000)
         this.durationStr = this.methods.filter(this.duration, false)
         this.$apply()
       }
@@ -337,9 +341,11 @@ export default class Music extends wepy.page {
     })
   }
 
-  unLoad() {
+  onUnload() {
     MusicTool.removeMusicListener({
-      type: 'timeUpdate'
+      type: 'timeUpdate',
+      fn: () => {
+      }
     })
   }
 }

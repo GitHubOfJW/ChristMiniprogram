@@ -1,11 +1,11 @@
 <template>
   <view class="container {{ hasMusic ? 'is_play' : '' }}">
     <cusaudio :inPage.sync="inPage"></cusaudio>
-    <csscrollview wx:if="{{!isloading}}" enableTop="{{false}}" class="list {{ hasMusic ? 'list_play' : ''}}">
+    <view wx:if="{{!isloading}}" class="list">
       <repeat for="{{musics}}" key="index" index="index" item="music">
         <favoriteItem :music.sync="music"></favoriteItem>
       </repeat>
-    </csscrollview>
+    </view>
 
     <toast />
     <csloading />
@@ -19,7 +19,6 @@
   import CusAudio from '@/components/cusaudio'
   import FavoriteItem from '@/components/favoriteItem'
   import CustomLoading from '@/components/customize/csLoading'
-  import CsScrollView from '@/components/customize/csScrollView'
   import Toast from 'wepy-com-toast'
   import MusicTool from '@/utils/MusicTool'
   import AccountTool from '@/utils/AccountTool'
@@ -34,7 +33,9 @@
   export default class Collect extends wepy.page {
     config = {
       navigationBarTitleText: '收藏',
-      disableScroll: true
+      disableScroll: false,
+      enablePullDownRefresh: true,
+      backgroundTextStyle: 'dark'
     }
 
     components = {
@@ -43,7 +44,6 @@
       panel2: Panel,
       cusaudio: CusAudio,
       csloading: CustomLoading,
-      csscrollview: CsScrollView,
       favoriteItem: FavoriteItem,
       toast: Toast
     }
@@ -67,6 +67,9 @@
             status: status
           },
           success: ({data}) => {
+            if (data.code !== 20000) {
+              return
+            }
             for (let i = 0; i < parseInt((this.musics.length + 1) * 0.5); i++) {
               const preObj = this.musics[i]
               const endObj = this.musics[this.musics.length - i - 1]
@@ -103,7 +106,9 @@
           data: data,
           success: ({data}) => {
             if (data.code === 20000) {
-              this.$invoke('csscrollview', 'footer_endRefresh', {noData: data.data.total <= 0})
+              // if (data.page === 1) {
+              this.musics.splice(0, this.musics.length)
+              // }
               for (let music of data.data.items) {
                 this.musics.push(music)
               }
@@ -113,7 +118,7 @@
 
           },
           complete: () => {
-            this.$invoke('csscrollview', 'footer_endRefresh')
+            wepy.stopPullDownRefresh()
             this.$apply()
           }
         })
@@ -133,19 +138,17 @@
         }
         MusicTool.resetMusic(music)
         MusicTool.playMusic()
-      },
-      headerRefreshHandler: () => {
-        this.methods.getData({
-          minId: this.musics.length > 0 ? this.musics[0].num : -1,
-          isHeader: true
-        })
-      },
-      footerRefreshHandler: () => {
-        this.methods.getData({
-          maxId: this.musics.length > 0 ? this.musics[this.musics.length - 1].num : -1,
-          isHeader: false
-        })
       }
+    }
+
+    onPullDownRefresh() {
+      this.page = 1
+      this.methods.getData()
+    }
+
+    onReachBottom() {
+      this.page = this.page + 1
+      this.methods.getData()
     }
 
     onLoad() {
@@ -153,7 +156,7 @@
     }
 
     onShow() {
-      this.$invoke('csscrollview', 'header_beginRefresh')
+      wepy.startPullDownRefresh()
     }
     onHide() {
     }
@@ -161,7 +164,7 @@
 </script>
 <style lang="less">
   .is_play {
-    padding-top:100rpx;
+    padding-top:110rpx;
   }
  
   .container {
@@ -170,12 +173,7 @@
   }
   
   .list {
-    position: absolute;
-    // width: 750rpx;
-    left: 0rpx;
-    right: 0rpx;
-    top: 0rpx;
-    bottom:0rpx;
+    padding-top:20rpx;
     border-radius: 3px;
     box-sizing: border-box;
     display: flex;
@@ -183,9 +181,5 @@
     justify-content: flex-start;
     align-items: center;
     border-radius: 4px;
-  }
-
-  .list_play {
-    top: 100rpx;
   }
 </style>

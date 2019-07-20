@@ -5,13 +5,16 @@ import MusicTool from '@/utils/MusicTool'
 import wepy from 'wepy'
 import AccountTool from '@/utils/AccountTool'
 
-export const nextMusic = id => {
+export const nextMusic = (id, cycle = -1) => {
+  if (cycle === -1) {
+    cycle = wepy.$store.getState().musicPlayer.playType
+  }
   // 下一首
   Request.request({
     url: '/music/mini/next',
     data: {
       music_id: id,
-      playType: wepy.$store.getState().musicPlayer.playType,
+      playType: cycle,
       duration: wepy.$store.getState().musicPlayer.duration
     },
     mehtod: 'GET',
@@ -31,13 +34,16 @@ export const nextMusic = id => {
   })
 }
 
-export const prevMusic = id => {
+export const prevMusic = (id, cycle = -1) => {
+  if (cycle === -1) {
+    cycle = wepy.$store.getState().musicPlayer.playType
+  }
   // 上一首
   Request.request({
     url: '/music/mini/prev',
     data: {
       music_id: id,
-      playType: wepy.$store.getState().musicPlayer.playType,
+      playType: cycle,
       duration: wepy.$store.getState().musicPlayer.duration
     },
     mehtod: 'GET',

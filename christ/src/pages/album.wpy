@@ -33,7 +33,6 @@
   import CustomLoading from '@/components/customize/csLoading'
   import ChooseMusic from '@/components/customize/chooseMusic'
   import CsLoading from '@/utils/CsLoading'
-  import CsScrollView from '@/components/customize/csScrollView'
   import Toast from 'wepy-com-toast'
   import MusicTool from '@/utils/MusicTool'
   import AccountTool from '@/utils/AccountTool'
@@ -60,7 +59,6 @@
       cusaudio: CusAudio,
       albumdetail: AlbumDetail,
       csloading: CustomLoading,
-      csscrollview: CsScrollView,
       musicitem: MusicItem,
       choosemusic: ChooseMusic,
       toast: Toast
@@ -94,6 +92,9 @@
             status: status
           },
           success: ({data}) => {
+            if (data.code !== 20000) {
+              return
+            }
             for (let i = 0; i < parseInt((this.musics.length + 1) * 0.5); i++) {
               const preObj = this.musics[i]
               const endObj = this.musics[this.musics.length - i - 1]
@@ -135,11 +136,6 @@
           data: data,
           success: ({data}) => {
             if (data.code === 20000) {
-              if (isHeader) {
-                this.$invoke('csscrollview', 'header_endRefresh', {noData: data.data.total <= 0})
-              } else {
-                this.$invoke('csscrollview', 'footer_endRefresh', {noData: data.data.total <= 0})
-              }
               if (clear) {
                 this.musics.splice(0, this.musics.length)
               }
@@ -160,10 +156,8 @@
           },
           complete: () => {
             if (isHeader) {
-              // this.$invoke('csscrollview', 'header_endRefresh')
               wepy.stopPullDownRefresh()
             } else {
-              // this.$invoke('csscrollview', 'footer_endRefresh')
             }
             this.$apply()
           }
@@ -197,6 +191,7 @@
         }
         MusicTool.resetMusic(music)
         MusicTool.playMusic()
+        MusicTool.changeWait(true)
       },
       chooseMusic: (value) => {
         this.chooseMusic = false
@@ -244,8 +239,9 @@
     }
 
     onShow() {
-      // this.$invoke('csscrollview', 'header_beginRefresh')
-      wepy.startPullDownRefresh()
+      if (this.musics.length <= 0) {
+        wepy.startPullDownRefresh()
+      }
     }
 
     // 下拉刷新
