@@ -6,6 +6,7 @@
 		"postcss": false,
 		"minified": false,
 		"newFeature": true,
+		"coverView": true,
 		"autoAudits": false,
 		"checkInvalidKey": true,
 		"checkSiteMap": true,
@@ -22,7 +23,7 @@
 	"miniprogramRoot": "dist/",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
-	"libVersion": "2.7.3",
+	"libVersion": "2.7.7",
 	"qcloudRoot": "cloud/",
 	"cloudfunctionRoot": "cloud/",
 	"condition": {

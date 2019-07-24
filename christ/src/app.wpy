@@ -18,7 +18,6 @@ import Request from '@/utils/request'
 import { setStore } from 'wepy-redux'
 import configStore from './store'
 import { nextMusic, prevMusic } from '@/store/actions/musicPlayer'
-
 const store = configStore()
 setStore(store)
 wepy.$store = store
@@ -133,7 +132,6 @@ export default class extends wepy.app {
     // 音乐播放
     bgaManager.onPlay(() => {
       MusicTool.playMusic()
-      MusicTool.changeWait(false)
     })
 
     // 音乐暂停
@@ -143,6 +141,19 @@ export default class extends wepy.app {
 
     bgaManager.onWaiting(() => {
       MusicTool.changeWait(true)
+    })
+    bgaManager.onSeeking(() => {
+      MusicTool.changeWait(true)
+    })
+
+    bgaManager.onEnded(() => {
+      const id = store.getState().musicPlayer.music_id
+      // 如果播放类型是单曲
+      nextMusic(id)
+    })
+
+    bgaManager.onStop(() => {
+      MusicTool.stopMusic()
     })
 
     // 下一曲
@@ -158,8 +169,10 @@ export default class extends wepy.app {
       // 如果播放类型是单曲
       prevMusic(id, 2)
     })
+  }
 
-    // 开始
+  onShow() {
+     // 开始
     wepy.onAudioInterruptionBegin(() => {
       MusicTool.pauseMusic()
     })
@@ -168,6 +181,17 @@ export default class extends wepy.app {
     wepy.onAudioInterruptionEnd(() => {
       MusicTool.playMusic()
     })
+  }
+
+  onHide() {
+    // wepy.offAudioInterruptionBegin()
+
+    // // 结束
+    // wepy.offAudioInterruptionEnd()
+  }
+
+  onError(msg) {
+    console.log(msg)
   }
 
   getUserInfo(cb) {

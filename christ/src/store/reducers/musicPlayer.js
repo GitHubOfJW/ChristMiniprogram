@@ -1,7 +1,6 @@
 import { handleActions } from 'redux-actions'
-import { PLAY_MUSIC, PAUSE_MUSIC, STOP_MUSIC, RESET_MUSIC, FAVORITE_MUSIC, ON_EVENT, OFF_EVENT, PLAY_TYPE, CHANGE_LOADING } from '../types/musicPlayer'
+import { PLAY_MUSIC, PAUSE_MUSIC, STOP_MUSIC, RESET_MUSIC, FAVORITE_MUSIC, PLAY_TYPE, CHANGE_LOADING } from '../types/musicPlayer'
 import wepy from 'wepy'
-// import MusicTool from '../../utils/MusicTool'
 export default handleActions({
   [RESET_MUSIC] (state, action) {
     // 如果当前已经有实例那就先销毁
@@ -12,11 +11,14 @@ export default handleActions({
         isPlaying: !bgaManager.paused
       }
     }
-    // 设置
     bgaManager.src = action.payload.source_url + '?time=' + Date.now()
     bgaManager.title = action.payload.name
-    
-    // bgaManager.autoplay = true
+    let tempCurrentTime = state.tempCurrentTime
+    // 如果当前音乐
+    if (state.music_id && action.payload.id !== state.music_id) {
+      tempCurrentTime = -1
+    }
+    bgaManager.autoplay = false
     // 改变状态
     return {
       ...state,
@@ -26,6 +28,7 @@ export default handleActions({
       music_name: action.payload.name,
       music_id: action.payload.id,
       isPlaying: false,
+      tempCurrentTime: tempCurrentTime,
       favorite: !!action.payload.favorite
     }
   },
@@ -35,9 +38,14 @@ export default handleActions({
       const bgaManager = wepy.getBackgroundAudioManager()
       if (bgaManager.paused) {
         bgaManager.play()
+        // 如果当前音乐
+        if (state.tempCurrentTime > 0) {
+          bgaManager.seek(state.tempCurrentTime)
+        }
       }
       return {
         ...state,
+        tempCurrentTime: -1,
         isPlaying: true
       }
     }
@@ -65,11 +73,12 @@ export default handleActions({
   [STOP_MUSIC] (state) {
     if (state.music_id) {
       const bgaManager = wepy.getBackgroundAudioManager()
-      if (!bgaManager.paused && bgaManager.currentTime === 0.0) {
-        bgaManager.stop()
-      }
+      // if (!bgaManager.paused && bgaManager.currentTime === 0.0) {
+      //   bgaManager.stop()
+      // }
       return {
         ...state,
+        tempCurrentTime: bgaManager.currentTime,
         isPlaying: false
       }
     }
@@ -79,34 +88,6 @@ export default handleActions({
       ...state,
       favorite: action.payload.favorite
     }
-  },
-  [ON_EVENT] (state, action) {
-    const { type = '', fn } = action.payload
-    if (state.music_id) {
-      const bgaManager = wepy.getBackgroundAudioManager()
-      if (type === 'ended') {
-        // state.events[type] = fn
-        bgaManager.onEnded(fn)
-      } else if (type === 'timeUpdate') {
-        // state.events[type] = fn
-        bgaManager.onTimeUpdate(fn)
-      }
-    }
-    return state
-  },
-  [OFF_EVENT] (state, action) {
-    const { type = '' } = action.payload
-    if (state.music_id) {
-      const bgaManager = wepy.getBackgroundAudioManager()
-      if (type === 'ended') {
-        bgaManager.onEnded(null)
-        // delete state.events[type]
-      } else if (type === 'timeUpdate') {
-        bgaManager.onTimeUpdate(null)
-        // delete state.events[type]
-      }
-    }
-    return state
   },
   [PLAY_TYPE] (state, action) {
     return {
@@ -128,5 +109,6 @@ export default handleActions({
   favorite: false,
   playType: 2, // 1 单曲循环 2 列表循环
   music_payload: null,
+  tempCurrentTime: -1,
   events: {}
 })

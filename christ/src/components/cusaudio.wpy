@@ -2,18 +2,18 @@
   <view class="player">
     <view class="audio" wx:if="{{hasMusic}}">
       <view class="img">
-        <image wx:if="{{ !paused }}" src="../static/imgs/music.svg" model="aspectFill" />
-        <image wx:if="{{ paused }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
+        <image class="{{ !paused ? '' : 'hide' }}" src="../static/imgs/music.svg" model="aspectFill" />
+        <image class="{{ paused ? '' : 'hide' }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
       </view>
       <view class="name" @tap="jumpDetail">
         <label>{{ name }}</label>
       </view>
       <view class="actions">
-        <image wx:if="{{ isCache }}" src="../static/imgs/circles.svg" model="aspectFill"  />
-        <image wx:if="{{ !isCache && paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
-        <image wx:if="{{ !isCache && !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
-        <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
-        <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
+        <image class="{{ isCache ? '' : 'hide' }}" src="../static/imgs/circles.svg" model="aspectFill"  />
+        <image class="{{ (!isCache && paused) ? '' : 'hide' }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image class="{{ (!isCache && !paused) ? '' : 'hide' }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image class="{{ favorite ? '' : 'hide' }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
+        <image class="{{ !favorite ? '' : 'hide' }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
     </view>
     <view class="line"></view>

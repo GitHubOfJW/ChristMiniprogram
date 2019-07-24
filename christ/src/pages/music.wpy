@@ -1,7 +1,7 @@
 <template>
   <view class="browser">
     <image class="topCover" src="../static/imgs/lrc_cover.png" model="scaleToFill"></image>
-    <scroll-view class="content" scroll-y scroll-with-animation="{{true}}" scroll-top="{{lrc_top}}rpx">
+    <scroll-view class="content" scroll-y scroll-with-animation="{{scollAnimate}}" scroll-top="{{lrc_top}}rpx">
       <view class="lrcs">
         <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
           <lrcitem :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
@@ -18,20 +18,23 @@
         <label>{{ durationStr }}</label>
       </view>
       <view class="tool">
-        <image wx:if="{{ singlePlayer }}" @tap="typeHandler" src="../static/imgs/singlecycle.png" model="aspectFill"  />
-        <image wx:if="{{ !singlePlayer }}" @tap="typeHandler" src="../static/imgs/listcycle.png" model="aspectFill"  />
+        <image class="{{ singlePlayer ? '' : 'hide'}}" @tap="typeHandler" src="../static/imgs/singlecycle.png" model="aspectFill"  />
+        <image class="{{ !singlePlayer ? '' : 'hide'}}" @tap="typeHandler" src="../static/imgs/listcycle.png" model="aspectFill"  />
         <!-- 上一曲 -->
         <image @tap="prevHander" src="../static/imgs/prev.png" model="aspectFill"  />
         <!-- 中间播放按钮 -->
-        <image wx:if="{{ isCache }}" src="../static/imgs/circles.svg" model="aspectFill"  />
-        <image wx:if="{{ !isCache && paused }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
-        <image wx:if="{{ !isCache && !paused }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image class="{{ isCache ? '' : 'hide' }}" src="../static/imgs/circles.svg" model="aspectFill"  />
+        <image class="{{ (!isCache && paused) ? '' : 'hide' }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image class="{{ (!isCache && !paused) ? '' : 'hide' }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
         <!-- 下一曲 -->
         <image @tap="nextHandler" src="../static/imgs/next.png" model="aspectFill"  />
         <!-- 收藏按钮 -->
-        <image wx:if="{{ favorite }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
-        <image wx:if="{{ !favorite }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
+        <image class="{{ favorite ? '' : 'hide' }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
+        <image class="{{ !favorite ? '' : 'hide' }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
+    </view>
+    <view class="editlrc" @tap="enableEdit" wx:if="{{has_lrc}}">
+      <label>{{ edit ? '取消' : '编词'}}</label>
     </view>
     <toast />
   </view>
@@ -85,7 +88,8 @@ export default class Music extends wepy.page {
     current: 0,
     duration: 0,
     seekFlag: false,
-    lrc_top: 0
+    lrc_top: 0,
+    scollAnimate: true
   }
 
   events = {
@@ -104,6 +108,9 @@ export default class Music extends wepy.page {
   }
 
   methods = {
+    enableEdit: () => {
+      this.edit = !this.edit
+    },
     prevHander: () => {
       const id = wepy.$store.getState().musicPlayer.music_id
       // 如果播放类型是单曲
@@ -124,16 +131,19 @@ export default class Music extends wepy.page {
     },
     changing: (e) => {
       this.seekFlag = true
-      const currentTime = (e.detail.value || 0) / 1000
+      this.scollAnimate = false
+      const currentTime = (e.detail.value)
       this.currentTimeStr = this.methods.filter(currentTime, false)
+      this.methods.checkScorllLrc(currentTime)
       this.$apply()
     },
     change: (e) => {
-      const currentTime = (e.detail.value || 0) / 1000
+      const currentTime = (e.detail.value) / 1000
       const bgaManager = wepy.getBackgroundAudioManager()
       const time = Math.min(currentTime, bgaManager.duration) - 1
       bgaManager.seek(time || 0.01)
       this.seekFlag = false
+      this.scollAnimate = true
       this.$apply()
     },
     // 检测歌词滚动
@@ -315,24 +325,20 @@ export default class Music extends wepy.page {
   onLoad() {
     this.methods.getLrc()
     const bgaManager = wepy.getBackgroundAudioManager()
-
-    MusicTool.addMusicListener({
-      type: 'timeUpdate',
-      fn: (args) => {
-        // 如果是选中时间
-        if (this.seekFlag) {
-          return
-        }
-        this.current = Math.round((bgaManager.currentTime || 0) * 1000)
-        this.methods.checkScorllLrc(this.current)
-        this.currentTimeStr = this.methods.filter(this.current, false)
-        if (bgaManager.duration <= 0) {
-          return
-        }
-        this.duration = Math.round((bgaManager.duration || 0) * 1000)
-        this.durationStr = this.methods.filter(this.duration, false)
-        this.$apply()
+    bgaManager.onTimeUpdate((args) => {
+      // 如果是选中时间
+      if (this.seekFlag) {
+        return
       }
+      this.current = Math.round((bgaManager.currentTime || 0) * 1000)
+      this.methods.checkScorllLrc(this.current)
+      this.currentTimeStr = this.methods.filter(this.current, false)
+      if (bgaManager.duration <= 0) {
+        return
+      }
+      this.duration = Math.round((bgaManager.duration || 0) * 1000)
+      this.durationStr = this.methods.filter(this.duration, false)
+      this.$apply()
     })
 
     // 设置
@@ -342,11 +348,9 @@ export default class Music extends wepy.page {
   }
 
   onUnload() {
-    MusicTool.removeMusicListener({
-      type: 'timeUpdate',
-      fn: () => {
-      }
-    })
+    const bgaManager = wepy.getBackgroundAudioManager()
+    bgaManager.onTimeUpdate(null)
+    bgaManager.onCanplay(null)
   }
 }
 </script>
@@ -444,5 +448,33 @@ export default class Music extends wepy.page {
         }
       }
     }
+  }
+
+  .editlrc {
+      position: fixed;
+      height: 60rpx;
+      border-top-left-radius: 20px;
+      border-bottom-left-radius: 20px;
+      background-color: red;
+      top:280rpx;
+      right: 0rpx;
+      justify-content: center;
+      align-items: center;
+      z-index:2;
+      padding: 0rpx 20rpx;
+
+      label {
+        text-align: center;
+        font-size: 30rpx;
+        color: white;
+        height: 60rpx;
+        line-height: 60rpx;
+      }
+    }
+
+
+
+  .hide {
+    display: none;
   }
 </style>

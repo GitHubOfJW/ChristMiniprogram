@@ -8,11 +8,11 @@
       <label>{{music.name}}</label>
     </view>
     <view class="action">
-        <image wx:if="{{  infoScope && music.favorite && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />
-        <image wx:if="{{ infoScope && (!music.favorite || music.favorite.is_delete) }}" @tap.stop="supportHandler" src="../static/imgs/support.png" model="aspectFit" />
+        <image wx:if="{{  infoScope && music.favorite && music.favorite.music_id && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />
+        <image wx:if="{{ infoScope && (!music.favorite || !music.favorite.music_id || music.favorite.is_delete) }}" @tap.stop="supportHandler" src="../static/imgs/support.png" model="aspectFit" />
         <button wx:if="{{!infoScope}}" plain size="mini" open-type="getUserInfo"  bindgetuserinfo="bindGetUserInfo">
-          <image wx:if="{{ music.favorite && !music.favorite.is_delete }}" src="../static/imgs/unsupport.png" model="aspectFit" />
-          <image wx:if="{{ !music.favorite || music.favorite.is_delete }}" src="../static/imgs/support.png" model="aspectFit" />
+          <image wx:if="{{ music.favorite && music.favorite.music_id && !music.favorite.is_delete }}" src="../static/imgs/unsupport.png" model="aspectFit" />
+          <image wx:if="{{ !music.favorite || !music.favorite.music_id || music.favorite.is_delete }}" src="../static/imgs/support.png" model="aspectFit" />
         </button>
     </view>
   </view>

@@ -191,7 +191,6 @@
         }
         MusicTool.resetMusic(music)
         MusicTool.playMusic()
-        MusicTool.changeWait(true)
       },
       chooseMusic: (value) => {
         this.chooseMusic = false
