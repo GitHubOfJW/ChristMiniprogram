@@ -37,11 +37,11 @@ export default handleActions({
       // 播放
       const bgaManager = wepy.getBackgroundAudioManager()
       if (bgaManager.paused) {
-        bgaManager.play()
         // 如果当前音乐
         if (state.tempCurrentTime > 0) {
           bgaManager.seek(state.tempCurrentTime)
         }
+        bgaManager.play()
       }
       return {
         ...state,

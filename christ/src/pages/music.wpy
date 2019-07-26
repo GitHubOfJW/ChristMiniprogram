@@ -33,7 +33,7 @@
         <image class="{{ !favorite ? '' : 'hide' }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
     </view>
-    <view class="editlrc" @tap="enableEdit" wx:if="{{has_lrc}}">
+    <view class="editlrc" @tap="enableEdit" wx:if="{{editAuth && has_lrc}}">
       <label>{{ edit ? '取消' : '编词'}}</label>
     </view>
     <toast />
@@ -89,6 +89,7 @@ export default class Music extends wepy.page {
     duration: 0,
     seekFlag: false,
     lrc_top: 0,
+    editAuth: false,
     scollAnimate: true
   }
 
@@ -140,10 +141,14 @@ export default class Music extends wepy.page {
     change: (e) => {
       const currentTime = (e.detail.value) / 1000
       const bgaManager = wepy.getBackgroundAudioManager()
-      const time = Math.min(currentTime, bgaManager.duration) - 1
-      bgaManager.seek(time || 0.01)
+      let time = Math.min(currentTime, bgaManager.duration) - 1
+      if (time <= 0) {
+        time = 0.1
+      }
+      bgaManager.seek(time)
       this.seekFlag = false
       this.scollAnimate = true
+      MusicTool.playMusic()
       this.$apply()
     },
     // 检测歌词滚动
@@ -172,6 +177,7 @@ export default class Music extends wepy.page {
       for (let item of this.lrcs) {
         lrcList.push(item.timeStr + item.text)
       }
+      lrcList.splice(0, 2)
       // 保存歌词
       Request.request({
         url: '/music/mini/edit/' + this.id,
@@ -205,7 +211,8 @@ export default class Music extends wepy.page {
         success: ({data}) => {
           if (data.code === 20000) {
             this.id = id
-            this.has_lrc = data.data.has_lrc && this.$parent.globalData.edit_lrc
+            this.editAuth = this.$parent.globalData.edit_lrc
+            this.has_lrc = data.data.has_lrc
             this.lrcs.splice(0, this.lrcs.length)
             this.edit = data.data.lrc_edit && this.$parent.globalData.edit_lrc
             if (!data.data.has_lrc) {
@@ -222,7 +229,7 @@ export default class Music extends wepy.page {
                 checked: false
               })
               this.lrcs.push({
-                time: this.methods.trans('[0:3:0]'),
+                time: 3000,
                 timeStr: '[0:3:0]',
                 text: '暂无歌词',
                 checked: false
@@ -241,21 +248,23 @@ export default class Music extends wepy.page {
               })
             }
             this.lrcs.unshift({
-              time: 50,
-              timeStr: '[0:0:50]',
+              time: 100,
+              timeStr: '[0:0:100]',
               text: '作者：' + data.data.author,
               checked: false
             })
             this.lrcs.unshift({
               time: 50,
-              timeStr: '[0:0:100]',
+              timeStr: '[0:0:50]',
               text: '歌曲：' + data.data.name,
               checked: false
             })
             // 刷新
             const bgaManager = wepy.getBackgroundAudioManager()
             this.current = Math.round((bgaManager.currentTime || 0) * 1000)
-            this.methods.checkScorllLrc(this.current)
+            if (!this.edit) {
+              this.methods.checkScorllLrc(this.current)
+            }
             this.currentTimeStr = this.methods.filter(this.current, false)
             this.duration = Math.round((bgaManager.duration || 0) * 1000)
             this.durationStr = this.methods.filter(this.duration, false)
@@ -331,7 +340,9 @@ export default class Music extends wepy.page {
         return
       }
       this.current = Math.round((bgaManager.currentTime || 0) * 1000)
-      this.methods.checkScorllLrc(this.current)
+      if (!this.edit) {
+        this.methods.checkScorllLrc(this.current)
+      }
       this.currentTimeStr = this.methods.filter(this.current, false)
       if (bgaManager.duration <= 0) {
         return
@@ -452,11 +463,11 @@ export default class Music extends wepy.page {
 
   .editlrc {
       position: fixed;
-      height: 60rpx;
+      height: 70rpx;
       border-top-left-radius: 20px;
       border-bottom-left-radius: 20px;
       background-color: red;
-      top:280rpx;
+      top:400rpx;
       right: 0rpx;
       justify-content: center;
       align-items: center;
@@ -467,8 +478,8 @@ export default class Music extends wepy.page {
         text-align: center;
         font-size: 30rpx;
         color: white;
-        height: 60rpx;
-        line-height: 60rpx;
+        height: 70rpx;
+        line-height: 70rpx;
       }
     }
 
