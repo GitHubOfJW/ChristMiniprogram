@@ -21,7 +21,7 @@ export default class MusicTool {
     })
   }
   // 重置音乐
-  static resetMusic({id = 0, source_url, name, favorite, origin = false}) {
+  static resetMusic({id = 0, source_url, name, is_sale, favorite, origin = false}) {
     // 设置音乐
     wepy.$store.dispatch({
       type: RESET_MUSIC,
@@ -29,6 +29,7 @@ export default class MusicTool {
         id: id,
         source_url: source_url,
         name: name,
+        is_sale: is_sale,
         favorite: !!favorite,
         origin: origin
       }

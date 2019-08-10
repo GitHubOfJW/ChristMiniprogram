@@ -151,12 +151,10 @@
       this.methods.getData()
     }
 
-    onLoad() {
-
-    }
-
     onShow() {
-      wepy.startPullDownRefresh()
+      if (this.musics.length <= 0) {
+        wepy.startPullDownRefresh()
+      }
     }
     onHide() {
     }

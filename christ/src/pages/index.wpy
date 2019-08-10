@@ -123,10 +123,6 @@
       }
     }
 
-    onReady() {
-      wepy.startPullDownRefresh()
-    }
-
     onPullDownRefresh() {
       // 在这展示loading
       // CsLoading.showLoading()
@@ -155,6 +151,9 @@
 
     onShow() {
       wepy.showShareMenu()
+      if (!this.menus) {
+        wepy.startPullDownRefresh()
+      }
     }
     onHide() {
 

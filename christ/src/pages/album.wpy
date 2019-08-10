@@ -186,6 +186,11 @@
         this.methods.music_favorite(music_id, favorite)
       },
       choose_music: (music) => {
+        // 已经下架
+        if (!music.is_sale) {
+          MusicTool.resetMusic(music)
+          return
+        }
         if (music.favorite && music.favorite.is_delete) {
           music.favorite = null
         }

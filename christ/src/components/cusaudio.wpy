@@ -6,14 +6,15 @@
         <image class="{{ paused ? '' : 'hide' }}" src="../static/imgs/music-stop.svg" model="aspectFill" />
       </view>
       <view class="name" @tap="jumpDetail">
-        <label>{{ name }}</label>
+        <label>{{ name }}<text>{{isSale ? '':' (已下架)'}}</text></label>
       </view>
       <view class="actions">
-        <image class="{{ isCache ? '' : 'hide' }}" src="../static/imgs/circles.svg" model="aspectFill"  />
-        <image class="{{ (!isCache && paused) ? '' : 'hide' }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
-        <image class="{{ (!isCache && !paused) ? '' : 'hide' }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
+        <image class="{{ isCache && isSale ? '' : 'hide' }}" src="../static/imgs/circles.svg" model="aspectFill"  />
+        <image class="{{ (!isCache && paused && isSale) ? '' : 'hide' }}" @tap="playHandler" src="../static/imgs/play.png" model="aspectFill"  />
+        <image class="{{ (!isCache && !paused && isSale) ? '' : 'hide' }}" @tap="pauseHandler" src="../static/imgs/pause.png" model="aspectFill" />
         <image class="{{ favorite ? '' : 'hide' }}" @tap="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFill" />
         <image class="{{ !favorite ? '' : 'hide' }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
+        <image class="{{ !isSale ? '' : 'hide' }}" @tap="jumpDetail" src="../static/imgs/lrc.png" model="aspectFill"  />
       </view>
     </view>
     <view class="line"></view>
@@ -43,6 +44,9 @@ import { favoriteMusic } from '@/store/actions/musicPlayer'
   },
   isCache(state) {
     return state.musicPlayer.isWaiting
+  },
+  isSale(state) {
+    return state.musicPlayer.is_sale
   }
 })
 export default class CusAudio extends wepy.component {

@@ -19,6 +19,10 @@ export default handleActions({
       tempCurrentTime = -1
     }
     bgaManager.autoplay = false
+    // 如果下架了，则停止播放
+    if (!action.payload.is_sale) {
+      bgaManager.stop()
+    }
     // 改变状态
     return {
       ...state,
@@ -28,6 +32,7 @@ export default handleActions({
       music_name: action.payload.name,
       music_id: action.payload.id,
       isPlaying: false,
+      is_sale: action.payload.is_sale,
       tempCurrentTime: tempCurrentTime,
       favorite: !!action.payload.favorite
     }
@@ -38,10 +43,10 @@ export default handleActions({
       const bgaManager = wepy.getBackgroundAudioManager()
       if (bgaManager.paused) {
         // 如果当前音乐
+        bgaManager.play()
         if (state.tempCurrentTime > 0) {
           bgaManager.seek(state.tempCurrentTime)
         }
-        bgaManager.play()
       }
       return {
         ...state,
@@ -106,6 +111,7 @@ export default handleActions({
   isWaiting: false,
   music_id: 0,
   duration: 0,
+  is_sale: true,
   favorite: false,
   playType: 2, // 1 单曲循环 2 列表循环
   music_payload: null,

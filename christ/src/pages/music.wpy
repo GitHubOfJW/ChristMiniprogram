@@ -1,7 +1,7 @@
 <template>
   <view class="browser">
     <image class="topCover" src="../static/imgs/lrc_cover.png" model="scaleToFill"></image>
-    <scroll-view class="content" scroll-y scroll-with-animation="{{scollAnimate}}" scroll-top="{{lrc_top}}rpx">
+    <scroll-view class="content {{isSale ? '': 'float_bottom'}}" scroll-y scroll-with-animation="{{scollAnimate}}" scroll-top="{{lrc_top}}rpx">
       <view class="lrcs">
         <repeat for="{{lrcs}}" key="index" index="index" item="lrc">
           <lrcitem :idx.sync="index" :edit.sync="edit" :lrc.sync="lrc"></lrcitem>
@@ -9,9 +9,9 @@
       </view>
       <button class="save" wx:if="{{edit}}" plain type="primary" bindtap="saveLrc" size="mini">保存</button>
     </scroll-view>
-    <image class="bottomCover" src="../static/imgs/lrc_cover.png" mode="scaleToFill"></image>
+    <image class="bottomCover {{isSale ? '': 'float_bottom'}}" src="../static/imgs/lrc_cover.png" mode="scaleToFill"></image>
     <!-- 控制 -->
-    <view class="control">
+    <view class="control {{isSale ? '': 'hide'}}">
       <slider block-size="15" value="{{current}}" bindchanging="changing" bindchange="change" min="0" max="{{duration}}"></slider>
       <view class="time">
         <label>{{ currentTimeStr }}</label>
@@ -33,7 +33,7 @@
         <image class="{{ !favorite ? '' : 'hide' }}" @tap="supportHandler" src="../static/imgs/support.png" model="aspectFill" />
       </view>
     </view>
-    <view class="editlrc" @tap="enableEdit" wx:if="{{editAuth && has_lrc}}">
+    <view class="editlrc" @tap="enableEdit" wx:if="{{editAuth && has_lrc && isSale}}">
       <label>{{ edit ? '取消' : '编词'}}</label>
     </view>
     <toast />
@@ -65,6 +65,9 @@ import Toast from 'wepy-com-toast'
   },
   isCache(state) {
     return state.musicPlayer.isWaiting
+  },
+  isSale(state) {
+    return state.musicPlayer.is_sale
   }
 })
 
@@ -333,6 +336,7 @@ export default class Music extends wepy.page {
 
   onLoad() {
     this.methods.getLrc()
+    this.seekFlag = false
     const bgaManager = wepy.getBackgroundAudioManager()
     bgaManager.onTimeUpdate((args) => {
       // 如果是选中时间
@@ -380,6 +384,7 @@ export default class Music extends wepy.page {
     top: 0;
     width: 100%;
     height: 100%;
+    background-color: #fbfbfb;
 
     .topCover {
       position: absolute;
@@ -409,6 +414,7 @@ export default class Music extends wepy.page {
       left :0;
       right:0;
       background-color: #fbfbfb;
+ 
       .lrcs {
         padding-top: 40%;
         padding-bottom: 40%;
@@ -421,6 +427,12 @@ export default class Music extends wepy.page {
         margin-bottom: 40rpx;
       }
     }
+
+
+    .float_bottom {
+      bottom: 0rpx !important;
+    }
+
     .control {
       width: 100%;
       height: 250rpx;
@@ -432,7 +444,7 @@ export default class Music extends wepy.page {
       flex-direction: column;
       justify-content: flex-start;
       align-items: center;
-
+ 
       slider {
         width: 650rpx;
       }
@@ -481,11 +493,11 @@ export default class Music extends wepy.page {
         height: 70rpx;
         line-height: 70rpx;
       }
-    }
+  }
 
 
 
   .hide {
-    display: none;
+    display: none !important;
   }
 </style>

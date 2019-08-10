@@ -1,0 +1,23 @@
+{
+  "rules":[{
+    "action": "allow",
+    "page": "pages/index",
+    "params": [],
+    "matching": "exact"
+  }, {
+    "action": "disallow",
+    "page": "pages/album"
+  }, {
+    "action": "disallow",
+    "page": "pages/collect"
+  }, {
+    "action": "disallow",
+    "page": "pages/music"
+  }, {
+    "action": "disallow",
+    "page": "pages/profile"
+  }, {
+    "action": "disallow",
+    "page": "pages/question"
+  }]
+}

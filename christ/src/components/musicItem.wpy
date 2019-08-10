@@ -5,7 +5,7 @@
     <label wx:if="{{ music_id !== music.id }}">{{music.num}} .</label>
     </view>
     <view class="info" @tap="clickMusic">
-      <label>{{music.name}}</label>
+      <label class="{{music.is_sale ? '':'gray'}}">{{music.name}}<text class="sale">{{music.is_sale ?'':'  (歌曲已下架)'}}</text></label>
     </view>
     <view class="action">
         <image wx:if="{{  infoScope && music.favorite && music.favorite.music_id && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />
@@ -108,6 +108,7 @@ export default class MusicItem extends wepy.component {
         width:40rpx;
         height:40rpx;
       }
+
       label {
         width:80rpx;
         height:80rpx;
@@ -116,6 +117,7 @@ export default class MusicItem extends wepy.component {
         font-size:30rpx;
         color: #888;
       }
+ 
     }
 
     .info {
@@ -123,12 +125,20 @@ export default class MusicItem extends wepy.component {
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      
+      .gray {
+        color:lightgray;
+      }
+
       label {
         padding: 0rpx 15rpx;
         font-size:30rpx;
         height:80rpx;
         line-height:80rpx;
         color: #555;
+        .sale {
+          color: #fe5555;
+        }
       }
     }
 
