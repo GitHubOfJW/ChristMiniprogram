@@ -6,6 +6,9 @@ export default handleActions({
     // 如果当前已经有实例那就先销毁
     const bgaManager = wepy.getBackgroundAudioManager()
     if (state.music_id && action.payload.id === state.music_id && !action.payload.origin) {
+      if (!action.payload.is_sale) {
+        bgaManager.stop()
+      }
       return {
         ...state,
         isPlaying: !bgaManager.paused
@@ -43,7 +46,9 @@ export default handleActions({
       const bgaManager = wepy.getBackgroundAudioManager()
       if (bgaManager.paused) {
         // 如果当前音乐
-        bgaManager.play()
+        if (state.is_sale) {
+          bgaManager.play()
+        }
         if (state.tempCurrentTime > 0) {
           bgaManager.seek(state.tempCurrentTime)
         }
