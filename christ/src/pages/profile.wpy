@@ -64,7 +64,6 @@
 
     data = {
       panelTop: true,
-      isloading: false,
       infoScope: false,
       avatar: '../static/imgs/avatar.png',
       userInfo: null,

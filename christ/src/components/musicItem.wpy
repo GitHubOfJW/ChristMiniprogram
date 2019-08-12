@@ -5,7 +5,7 @@
     <label wx:if="{{ music_id !== music.id }}">{{music.num}} .</label>
     </view>
     <view class="info" @tap="clickMusic">
-      <label class="{{music.is_sale ? '':'gray'}}">{{music.name}}<text class="sale">{{music.is_sale ?'':'  (歌曲已下架)'}}</text></label>
+      <label class="{{music.is_sale ? '':'gray'}}">{{music.name}}<text class="sale">{{music.is_sale ?'':'  (已下架)'}}</text></label>
     </view>
     <view class="action">
         <image wx:if="{{  infoScope && music.favorite && music.favorite.music_id && !music.favorite.is_delete }}" @tap.stop="unsupportHandler" src="../static/imgs/unsupport.png" model="aspectFit" />

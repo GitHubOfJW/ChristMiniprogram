@@ -3,11 +3,11 @@
     <cusaudio :inPage.sync="inPage"></cusaudio>
 
     <!-- 专辑 -->
-    <panel1 wx:if="{{!isloading}}">
+    <panel1 wx:if="{{album_id}}">
       <albumdetail :album.sync = "albumData"></albumdetail>
     </panel1>
  
-    <view wx:if="{{!isloading}}" class="list {{ hasMusic ? 'list_play' : ''}}">
+    <view  class="list {{ hasMusic ? 'list_play' : ''}}">
       <repeat for="{{musics}}" key="index" index="index" item="music">
         <musicitem :music.sync="music"></musicitem>
       </repeat>
@@ -32,7 +32,6 @@
   import MusicItem from '@/components/musicItem'
   import CustomLoading from '@/components/customize/csLoading'
   import ChooseMusic from '@/components/customize/chooseMusic'
-  import CsLoading from '@/utils/CsLoading'
   import Toast from 'wepy-com-toast'
   import MusicTool from '@/utils/MusicTool'
   import AccountTool from '@/utils/AccountTool'
@@ -73,7 +72,6 @@
       },
       inPage: true,
       musics: [],
-      isloading: true,
       album_id: null,
       chooseMusic: false,
       chooseNum: 1,
@@ -211,7 +209,6 @@
 
     onLoad(option) {
       // CsLoading.showLoading()
-      this.isloading = true
       // 获取到ID 发起请求
       if (option && option.id) {
         this.album_id = option.id
@@ -229,12 +226,7 @@
 
           },
           complete: () => {
-            // CsLoading.hideLoading({
-            //   success: () => {
-            this.isloading = false
             this.$apply()
-              // }
-            // })
           }
         })
       } else {
@@ -265,12 +257,11 @@
     }
 
     onHide() {
-      CsLoading.hideLoading({
-        success: () => {
-          this.isloading = false
-          this.$apply()
-        }
-      })
+      // CsLoading.hideLoading({
+      //   success: () => {
+      //     this.$apply()
+      //   }
+      // })
     }
   }
 </script>

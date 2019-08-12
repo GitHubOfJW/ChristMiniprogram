@@ -1,7 +1,7 @@
 <template>
   <view class="container {{ hasMusic ? 'is_play' : '' }}">
     <cusaudio :inPage.sync="inPage"></cusaudio>
-    <view wx:if="{{!isloading}}" class="list">
+    <view class="list">
       <repeat for="{{musics}}" key="index" index="index" item="music">
         <favoriteItem :music.sync="music"></favoriteItem>
       </repeat>
@@ -51,7 +51,6 @@
     data = {
       inPage: true,
       musics: [],
-      isloading: false,
       page: 1
     }
 

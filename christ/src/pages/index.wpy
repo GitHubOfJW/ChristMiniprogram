@@ -3,7 +3,7 @@
     <cusaudio></cusaudio>
 
     <!-- 免责声明相关 -->
-    <panel1 lines="bottom"  wx:if="{{!isloading}}">
+    <panel1 lines="bottom" >
       <view class="header">
       <repeat for="{{menus}}" key="index" index="index" item="menu">
         <menuitem :menu.sync="menu"></menuitem>
@@ -12,7 +12,7 @@
     </panel1>
 
     <!-- 祷告文 -->
-    <panel2 lines="bottom" wx:if="{{!isloading}}">
+    <panel2 lines="bottom" wx:if="{{menus}}">
       <view @tap="paryersHandler" class="prayers {{prayers_show ? '' : 'prayers_h'}}">
         <label for="祷告文">祷告词</label>
         <label for="祷告文内容">{{prayersTxt}}</label>
@@ -22,7 +22,7 @@
 
     <!-- 专辑 -->
     <repeat for="{{albums}}" key="album.id" index="index" item="album">
-      <carditem class="card" :id_key="album.name" :image_url="album.big_url" wx:if="{{!isloading}}">
+      <carditem class="card" :id_key="album.name" :image_url="album.big_url">
         <label slot="title">{{album.name}}</label>
       </carditem>
     </repeat>
@@ -78,7 +78,6 @@
       timerId: null,
       prayersTxt: '我们在天上的父,愿人都尊你的名为圣。愿你的国降临；愿你的旨意行在地上，如同行在天上。我们日用的饮食，今日赐给我们。免我们的债，如同我们免了人的债。不叫我们遇见试探；救我们脱离凶恶。因为国度、权柄、荣耀，全是你的，直到永远。阿们。',
       menus: null,
-      isloading: true, // 进入页面默认一片空白
       prayers_show: false,
       content: '',
       dialog: false,
@@ -126,7 +125,6 @@
     onPullDownRefresh() {
       // 在这展示loading
       // CsLoading.showLoading()
-      this.isloading = true
       // 发送请求获取首页
       Request.request({
         url: '/mini/index',
@@ -136,6 +134,7 @@
           if (data.code === 20000) {
             this.albums = data.data.albums.rows
             this.menus = data.data.menus
+            this.$apply()
           }
         },
         fail: () => {
@@ -143,7 +142,6 @@
         },
         complete: () => {
           wepy.stopPullDownRefresh()
-          this.isloading = false
           this.$apply()
         }
       })
