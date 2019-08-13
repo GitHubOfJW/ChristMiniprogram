@@ -5,7 +5,8 @@
     "params": [],
     "matching": "exact"
   }, {
-    "action": "disallow",
+    "action": "allow",
+    "params": ["id"],
     "page": "pages/album"
   }, {
     "action": "disallow",

@@ -210,28 +210,24 @@
     onLoad(option) {
       // CsLoading.showLoading()
       // 获取到ID 发起请求
-      if (option && option.id) {
-        this.album_id = option.id
-        Request.request({
-          url: '/album/mini/' + option.id,
-          method: 'GET',
-          success: ({data}) => {
-            if (data.code === 20000) {
-              this.albumData.big_url = '../static/imgs/loading.svg'
-              this.albumData = data.data
-              this.albumCount = data.data.music_count
-            }
-          },
-          fail: () => {
-
-          },
-          complete: () => {
-            this.$apply()
+      this.album_id = option.id || 1
+      Request.request({
+        url: '/album/mini/' + this.album_id,
+        method: 'GET',
+        success: ({data}) => {
+          if (data.code === 20000) {
+            this.albumData.big_url = '../static/imgs/loading.svg'
+            this.albumData = data.data
+            this.albumCount = data.data.music_count
           }
-        })
-      } else {
-        wepy.navigateBack()
-      }
+        },
+        fail: () => {
+
+        },
+        complete: () => {
+          this.$apply()
+        }
+      })
     }
 
     onShow() {
@@ -256,12 +252,8 @@
       })
     }
 
-    onHide() {
-      // CsLoading.hideLoading({
-      //   success: () => {
-      //     this.$apply()
-      //   }
-      // })
+    onReady() {
+      wepy.showShareMenu()
     }
   }
 </script>

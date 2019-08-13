@@ -5,16 +5,22 @@ export default handleActions({
   [RESET_MUSIC] (state, action) {
     // 如果当前已经有实例那就先销毁
     const bgaManager = wepy.getBackgroundAudioManager()
-    if (state.music_id && action.payload.id === state.music_id && !action.payload.origin) {
+    if (state.music_id && action.payload.id === state.music_id && !action.payload.origin && state.is_sale === action.payload.is_sale) {
       if (!action.payload.is_sale) {
         bgaManager.stop()
       }
       return {
         ...state,
+        is_sale: action.payload.is_sale,
         isPlaying: !bgaManager.paused
       }
     }
-    bgaManager.src = action.payload.source_url + '?time=' + Date.now()
+    // 如果下架了，则停止播放
+    if (!action.payload.is_sale) {
+      bgaManager.stop()
+    } else {
+      bgaManager.src = action.payload.source_url + '?time=' + Date.now()
+    }
     bgaManager.title = action.payload.name
     let tempCurrentTime = state.tempCurrentTime
     // 如果当前音乐
@@ -22,10 +28,7 @@ export default handleActions({
       tempCurrentTime = -1
     }
     bgaManager.autoplay = false
-    // 如果下架了，则停止播放
-    if (!action.payload.is_sale) {
-      bgaManager.stop()
-    }
+
     // 改变状态
     return {
       ...state,
@@ -48,9 +51,9 @@ export default handleActions({
         // 如果当前音乐
         if (state.is_sale) {
           bgaManager.play()
-        }
-        if (state.tempCurrentTime > 0) {
-          bgaManager.seek(state.tempCurrentTime)
+          if (state.tempCurrentTime > 0) {
+            bgaManager.seek(state.tempCurrentTime)
+          }
         }
       }
       return {

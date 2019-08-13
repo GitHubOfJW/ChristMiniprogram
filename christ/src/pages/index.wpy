@@ -147,8 +147,11 @@
       })
     }
 
-    onShow() {
+    onReady() {
       wepy.showShareMenu()
+    }
+
+    onShow() {
       if (!this.menus) {
         wepy.startPullDownRefresh()
       }
